@@ -824,67 +824,17 @@ lm_2_posthoc_fig
 
 ```{r}
 pwpp_fig <- 
-  pwpp(lm_2_posthoc_fig, method = pwpp_comparisons, type = "response", sort = FALSE)+
-  ggplot2::theme_classic()
+  pwpp(lm_2_posthoc_fig, method = pwpp_comparisons, type = "response", sort = FALSE, ylab = "Day-Age Combination", xlab = "P-value")+
+  ggplot2::theme_classic()+
+  ggplot2::theme(
+    axis.text.x = element_text(color="black"), 
+    axis.text.y = element_text(color="black"),
+  )+
+  ggplot2::geom_vline(xintercept = 0.05, linetype = "longdash", color = "#696969")+
+  ggplot2::geom_hline(yintercept = 20.5, linetype = "dashed")+
+  
   
 pwpp_fig
 
-```
-
-
-I want to customize my figure beyond the default, so I am going to use code provided by John L. Godlee on his [GitHub](https://johngodlee.github.io/2019/08/07/pwpp.html) to convert the output from the `r pwpp` into a dataframe that is usable in `r `ggplot2`.
-
-```{r}
-marg_vals_pwpp <- data.frame(
-  y = pwpp_fig$layers[[3]]$data$"day_fac:age", 
-  label = pwpp_fig$layers[[3]]$data$emmean)
-
-marg_vals_pwpp
-
-p_vals_pwpp <- data.frame(
-  x = pwpp_fig$data$p.value, 
-  plus = pwpp_fig$data$plus, 
-  minus = pwpp_fig$data$minus, 
-  midpt = pwpp_fig$data$midpt)
-
-p_vals_pwpp
-```
-
-I am now going to export the `r p_vals_pwpp` dataframe and manually delete all comparisons that do not have at least one level in common to make the pairwise plot slightly less crowded.
-
-```{r}
-write_csv(p_vals_pwpp, "data_exported/p_vals_pwpp.csv")
-```
-
-Import corrected .csv file.
-
-```{r}
-p_vals_pwpp_corrected <- read.csv("data_exported/p_vals_pwpp_corrected.csv")
-```
-
-
-```{r}
-##better ggplot that we can actually edit
-pwpp_ggplot <- ggplot() + 
-  geom_segment(data = p_vals_pwpp_corrected,
-    aes(x = x, xend = x, y = plus, yend = midpt, colour = minus)) +
-  geom_point(data = p_vals_pwpp_corrected,
-    aes(x = x, y = plus, colour = minus), 
-    size = 3) + 
-  
-  geom_vline(aes(xintercept = 0.05),
-    linetype = 2) + 
-  ylab("Day") +
-  xlab("Tukey-adjusted P value") + 
-  theme_classic() +
-  theme(panel.grid.major.y = element_line(colour="#E0E0E0"),
-    axis.title = element_text(size = 14),
-    axis.text = element_text(size = 12),
-    legend.position = "none") + 
-  scale_x_continuous(breaks = c(0, 0.001, 0.01, 0.05, 0.1, 0.5, 1)) + 
-  coord_trans(x = "log10", clip = "off")
-
-
-pwpp_ggplot
 ```
 
