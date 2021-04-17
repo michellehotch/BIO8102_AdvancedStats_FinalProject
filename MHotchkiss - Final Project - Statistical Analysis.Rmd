@@ -158,13 +158,15 @@ Look at summary.
 summary(lm_1)
 ```
 
-Perform an ANOVA (Type III) to determine the significance of the fixed effects. Note: I am including my nested random effects in my model to account for inherent non-independence in my experimental design. I am not interested in the variability explained by my random effects nor whether that variability is significant, therefore I will not test for their significance.
+Perform an ANOVA (Type III) to determine the significance of the fixed effects. Note: I am including my nested random effects in my model to account for inherent non-independence in my experimental design. Use `r ranova` to determine significance of random effects. 
 
 ```{r}
 anova(lm_1) #note: this is lmerTest anova which, in this case, is a type III anova for fixed-effects terms with the Satterthwaite method for denominator degrees of freedom
+
+ranova(lm_1)
 ```
 
-Based on ANOVA, only `r day_fac`, `r age`, and `r day_fac:age` are significant (p \< 0.05). All other fixed factors are insignificant. Most importantly, no fixed effects/interactions have p-values that are "borderline significant" (i.e., close to the arbitrary 0.05 cutoff). Therefore, I will code a second model keeping only the significant terms.
+Based on ANOVA, fixed effects `r day_fac`, `r age`, and `r day_fac:age` are significant (p < 0.05). All other fixed factors are insignificant. Random factors are also significant. Most importantly, no effects have p-values that are "borderline significant" (i.e., close to the arbitrary 0.05 cutoff). Therefore, I will code a second model keeping only the significant terms.
 
 ```{r}
 lm_2 <- lmer(volume24_corr ~ day_fac + age + day_fac:age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
@@ -175,6 +177,7 @@ Summary and ANOVA for linear mixed model 2.
 ```{r}
 summary(lm_2)
 anova(lm_2)
+ranova(lm_2)
 ```
 
 ## Test assumptions on Linear Mixed Model 2.
