@@ -6,61 +6,47 @@ output: html_document
 bibliography: references.bib
 ---
 
-ROUGH NOTES NOW
-
--   why is it useful looking at volume?
-
-    -   does treatment affect the volume of sugar syrup consumed?
-
-        -   other factors: exposure period (duh) and age
-
-    -   predictions: consistent before exposure, varied during exposure, and then don't know for after
-
--   what is meaningful?
-
-    -   find control mean over entire experiment and compare to that
-
-    -   
-
 ## Introduction
 
 #### Background and Study System
 
-Bees are important pollinators both for agricultural crops and natural plant communities. In recent decades, bee populations have been declining due to a combination of stressors including declines in floral resources, increases in pathogen loads, and increased pesticide use.\
+Bees are important pollinators both for agricultural crops and natural plant communities. In recent decades, bee populations have experienced major declines, threatening the pollination services they provide [@Goulson2015]. Factors that are hypothesized to be contributing to these declines are declines in floral resources, increases in pathogen loads, and increased pesticide use [@Goulson2015].\
 \
-Bees are exposed to routinely exposed to pesticides when foraging on contaminated pollen and nectar, and exposure to multiple concurrent pesticides is the norm. While pesticides can have negative effects on bee hosts, recent experiments have also shown demonstrated negative effects on bee gut microbiotas.
+Bees are exposed to routinely exposed to pesticides when foraging on contaminated pollen and nectar, and exposure to multiple concurrent pesticides is the norm [@Mullin2010]. While pesticides can have direct negative effects on bee hosts [e.g., @Siviter2020; @Baron2017a; @Bernauer2015; @Balbuena2015], recent experiments have also demonstrated that pesticide exposure can disturb bee gut microbiotas.
 
-Social corbiculate bees (such as honey and bumble bees) have a highly inter- and intra- specifically conserved gut microbiota whose presence provides a suite of benefits to the host organism. The fact that the taxonomic structure of this community is capable of being disturbed by pesticides may present a problem if the function of this community is simultaneously disturbed, and the microbiota can no longer **play its role**.
+Social corbiculate bees (such as honey and bumble bees) have a highly inter- and intra-specifically conserved gut microbiota [@Kwong2016] whose presence provides a suite of benefits to the host organism [e.g., @Zheng2017; @Zheng2016; @Engel2012; @Kenerová2017; @Koch2011; @Mockler2018]. Unfortunately, multiple studies have now shown that pesticide exposure can disturbing the community structure of bee gut microbiotas [e.g., @Motta2018; @Rouzé2019; @Kakumanu2016; @Liu2020], potentially putting the aforementioned benefits to bee hosts at risk.
 
-However, few studies on pesticide-induced disturbances in bee gut microbiotas have considered an important facet of exposure to some pesticides: interval exposures. While some pesticides are systemic (i.e., certain neonicotinoids), present in plant tissue consistently, other pesticides are applied via spraying which generally occurs once every couple of weeks. In this scenario, pesticide residues are not consistently present - when accounting for floral and pollen turnover rates, pesticides are likely to present in pollen and nectar for less than one week. This shorter duration of pesticide exposure provides a pesticide-free window of time during which pesticide-disturbed bee gut microbiotas may be able to recover from pesticide exposure.
-
-One pesticide that is applied in this way is chlorothalonil, a fungicide that is commonly used on tomato crops in greenhouses which bumble bees are purchased to pollinate. Chlorothalonil is capable of disturbing bee gut microbiotas via chronic exposure [@Kakumanu2016], but it remains unknown is it disturbs gut microbiotas under a more realistic exposure regime.\
+However, few studies on pesticide-induced disturbances in bee gut microbiotas have taken into account that pesticide concentrations in the environment are not stable but vary temporally [@Fantke2013]. Many pesticides are applied via spraying which generally occurs once every couple of weeks. In this scenario, when accounting for floral and pollen turnover rates, pesticides are likely to present in pollen and nectar for less than one week [@Hicks2016]. This shorter duration of pesticide exposure provides a pesticide-free window between spray dates during which pesticide-disturbed bee gut microbiotas may be able to recover from pesticide exposure. One pesticide that is applied via spraying is chlorothalonil, a fungicide that is commonly used on tomato and cucurbit crops which bumble bees are purchased to pollinate. Chlorothalonil is capable of disturbing bee gut microbiotas via chronic exposure [@Kakumanu2016] but it remains unknown if it could disturb bee gut microbiotas under a more realistic exposure regime.\
 \
-For Chapter 1 of my thesis, I aim to answer the following questions: 1) Is chlorothalonil capable of disturbing bumble bee gut microbiotas under an acute exposure regime?, and 2) Are bumble bee gut microbiotas capable of recovering from pesticide-induced disturbance within the two week period between exposure events?\
+For Chapter 1 of my PhD thesis, I aimto determine: 1) Is chlorothalonil capable of disturbing bumble bee gut microbiotas under an acute exposure regime?, and 2) Are bumble bee gut microbiotas capable of recovering from pesticide-induced disturbance within the two week period between exposure events?\
 \
-While my data collection is finished, I do not yet have sequence data. My plan is to run a univariate model for the abundance of each microbial taxa of interest to determine how it varies with respect to time and treatment. However, I do have the amount of sugar syrup (nectar proxy) that bees consumed during my experiment. A univariate model to analyze volume of sugar syrup consumed will be similar to my univariate models to determine changes in microbial abundance, and so I will use this project as an opportunity to develop a general model structure that, for now, will explain variation in sugar syrup consumed, but which I believe will also be useful to explain variation in the abundances of core bee gut microbial taxa.
+To answer these questions, I designed an experiment wherein I exposed microcolonies of bumble bees to varying concentrations of chlorothalonil in their sugar syrup and sampled their gut microbiotas both during and after chlorothalonil exposure. While I have completed sample collection, I do not yet have the microbiota sequence data to answer my primary questions for this chapter. However, I do have the amount of sugar syrup that bees in each treatment consumed during my experiment. As almost all microbial members of bee gut microbiotas use simple sugars to fuel their metabolism [@Kwong2016], the amount of sugar syrup consumed by each microcolony likely has a direct impact on their gut microbiota. Therefore, it will be useful to know if sugar syrup consumption varies significantly between treatments when interpreting any significant shifts in taxonomic community structure between bee gut microbiotas of different treatments.
 
-#### Hypotheses
+#### Hypothesis
 
-Additives in sugar syrup can make syrup more or less enticing to bees. Additionally, older bees are **less active (?)** than younger bees and tend to consume less sugar syrup.
+The presence of chlorothalonil in sugar syrup alters bees' feeding behaviour. This has been shown before with other pesticides with some causing bees to increase [@Kessler2015] and others causing bees to decrease their sugar syrup consumption [@Thompson2015].
 
 #### Predictions
 
-1.  Age of bees and treatment will significantly affect volume of sugar syrup consumed.
+1.  The average daily volume of sugar syrup consumed during the acclimation period (i.e., before exposure to chlorothalonil) will be equal across all treatments.
 
-2.  For age specifically, I believe older bees will consume less sugar syrup regardless of treatment.
+2.  The average daily volume of sugar syrup consumed during the chlorothalonil exposure period will be significantly different between treatment and control groups.
 
 ## Methods
 
 #### Bee Hosts
 
-The bumble bee species that I used for my experiment was the Common Eastern Bumble Bee, *Bombus impatiens*. This species is the most common in eastern North America and is available to purchase as commercial colonies.
+The bumble bee species that I used for my experiment was the Common Eastern Bumble Bee, *Bombus impatiens*. This bumble bee species is, unsurprisingly, the most common in eastern North America and is available to purchase as commercial colonies.
 
 #### Experimental Set Up
 
-I purchased five bumble bee hives from BioBest (Leamington, ON). At Week 1 and Week 3 for all colonies, and additionally at Week 7 for colonies 3 and 4, 70 workers bees were removed from each colony and divided into seven cup containers to form ten microcolonies per colony. These microcolonies were assigned to one of seven treatments: Control, Solvent Control, 1 ppb chlorothalonil (CHT), 10 ppb CHT, 100 ppb CHT, 800 ppb CHT, or Sacrificial.\
+I purchased five bumble bee hives (source colonies) from BioBest (Leamington, ON). When source colonies were one and three weeks old, and additionally at seven weeks old for Source Colony 3 and nine weeks old for Source Colony 4, 70 worker bees were removed from each source colony and divided evenly into seven cup containers to form ten microcolonies per source colony. These microcolonies were assigned to one of seven treatments: Control, Solvent Control, 1 ppb chlorothalonil (CHT), 10 ppb CHT, 100 ppb CHT, 800 ppb CHT, or Sacrificial.\
 \
-Microcolonies were all fed sterile sugar syrup for 6 days (Day -6 to Day 0) and allowed to acclimate to their containers. Starting on Day 0, microcolonies were then exposed to their respective treatments for five days. Control microcolonies were provided with sterile sugar *ad libitum* while Solvent Control microcolonies were provided with sterile sugar syrup spiked with DMSO (**Spell out)**. CHT exposed microcolonies were provided with sterile sugar syrup spiked with the appropriate concentration of CHT dissolved in DMSO. Sacrificial microcolonies were exposed to 800 ppb of chlorothalonil but were sacrificed on Day 5 in order to analyze the bee bodies for CHT residues. After five days of exposure, colonies were once again provided only with sterile sugar syrup for the remainder of a two-week period (Day 5-Day 14). All bees within microcolonies were frozen on Day 14. Fecal samples were taken from microcolonies on Day 0, 3, 5, 8, and 14. The volume of sugar syrup each microcolony consumed over the past 24 hours was recorded daily.
+Microcolonies were all fed sterile sugar syrup for 6 days (Day -5 to Day 0) and allowed to acclimate to their containers. Starting on Day 0, microcolonies were fed sugar syrup containing their respective treatments for five days (Day 1 to Day 5). Control microcolonies were provided with sterile sugar while Solvent Control microcolonies were provided with sterile sugar syrup spiked with dimethyl sulfoxide (DMSO**)**. CHT exposed microcolonies were provided with sterile sugar syrup spiked with the appropriate concentration of CHT dissolved in DMSO. Sacrificial microcolonies were exposed to 800 ppb of chlorothalonil but were sacrificed on Day 5 in order to analyze bee bodies for CHT residues. After the five days of exposure was complete, all microcolonies were once again provided with non-contaminated sterile sugar syrup for the remainder of a two-week period (Day 6 to Day 14). The volume of sugar syrup each microcolony consumed was recorded daily.
+
+#### Correcting Volumes for Time Between Recordings
+
+Sugar syrups volumes were recorded at different times during the day depending on whether a fecal sample was being taken that day. To account for this, the daily volume of sugar syrup consumed by each microcolony was divided by the number of hours between that daily volume recording and the previous recording to get the volume of sugar syrup consumed per microcolony per hour. This number was then multiplied by 24 to calculated the corrected daily volume of sugar syrup consumed per microcolony.
 
 #### Statistical Methods
 
