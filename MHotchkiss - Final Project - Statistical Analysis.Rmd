@@ -13,6 +13,7 @@ Load all necessary libraries.
 
 ```{r}
 library(tidyverse)
+library(ggforce)
 library(lme4)
 library(lmerTest)
 ```
@@ -20,7 +21,7 @@ library(lmerTest)
 Load data into R and check structure.
 
 ```{r}
-syrup_vol_data <- read.csv("data-raw/volume_24.csv")
+syrup_vol_data <- read.csv("data-raw/volume24_corr.csv")
 
 str(syrup_vol_data)
 ```
@@ -53,8 +54,9 @@ syrup_vol_data %>%
   filter(!(day=="-6")) %>% 
   filter(!(treatment=="Sacrifice")) %>% 
   filter(!(age=="7")) %>% 
+  filter(!(age=="9")) %>% 
   group_by(treatment, day) %>% 
-  summarise(mean = mean(volume24), se = (sd(volume24)/sqrt(12))) %>% 
+  summarise(mean = mean(volume24_corr), se = (sd(volume24_corr)/sqrt(10))) %>% 
   ggplot(aes(day, mean, color=treatment)) +
   geom_line()+
   geom_point()+
@@ -90,8 +92,9 @@ syrup_vol_data %>%
   filter(!(day=="-6")) %>% 
   filter(!(treatment=="Sacrifice")) %>% 
   filter(!(age=="7")) %>% 
+  filter(!(age=="9")) %>% 
   group_by(treatment, day, age) %>% 
-  summarise(mean = mean(volume24), se = (sd(volume24)/sqrt(12))) %>% 
+  summarise(mean = mean(volume24_corr), se = (sd(volume24_corr)/sqrt(10))) %>% 
   ggplot(aes(day, mean, color=treatment)) +
   geom_line()+
   geom_point()+
@@ -131,7 +134,8 @@ syrup_vol_data_fil <-
   syrup_vol_data %>% 
   filter(!(day=="-6")) %>% 
   filter(!(treatment=="Sacrifice")) %>% 
-  filter(!(age=="7"))
+  filter(!(age=="7")) %>% 
+  filter(!(age=="9"))
 
 syrup_vol_data_fil$day_fac <- as.factor(syrup_vol_data_fil$day)
 
@@ -143,7 +147,7 @@ str(syrup_vol_data_fil)
 Note: I will be coding random intercepts only as coding a random slope for every fixed factor will not be feasible.
 
 ```{r}
-lm_1 <- lmer(volume24 ~ treatment*day_fac*age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
+lm_1 <- lmer(volume24_corr ~ treatment*day_fac*age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
 ```
 
 No errors for model 1.
@@ -163,7 +167,7 @@ anova(lm_1) #note: this is lmerTest anova which, in this case, is a type III ano
 Based on ANOVA, only `r day_fac`, `r age`, and `r day_fac:age` are significant (p \< 0.05). All other fixed factors are insignificant. Most importantly, no fixed effects/interactions have p-values that are "borderline significant" (i.e., close to the arbitrary 0.05 cutoff). Therefore, I will code a second model keeping only the significant terms.
 
 ```{r}
-lm_2 <- lmer(volume24 ~ day_fac + age + day_fac:age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
+lm_2 <- lmer(volume24_corr ~ day_fac + age + day_fac:age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
 ```
 
 Summary and ANOVA for linear mixed model 2.
@@ -777,7 +781,7 @@ lm_2_posthoc_cld_nospaces <-
 
 syrup_vol_data_fil_letters <- syrup_vol_data_fil %>% 
   group_by(day_fac, age) %>% 
-  summarise(mean = mean(volume24), se = (sd(volume24)/sqrt(12))) %>% 
+  summarise(mean = mean(volume24_corr), se = (sd(volume24_corr)/sqrt(10))) %>% 
   inner_join(lm_2_posthoc_cld_nospaces) 
 
 
@@ -830,9 +834,8 @@ pwpp_fig <-
     axis.text.x = element_text(color="black"), 
     axis.text.y = element_text(color="black"),
   )+
-  ggplot2::geom_vline(xintercept = 0.05, linetype = "longdash", color = "#696969")+
   ggplot2::geom_hline(yintercept = 20.5, linetype = "dashed")+
-  
+  facet_zoom(xlim = c(0.01, 0.08), zoom.size = 1)
   
 pwpp_fig
 
