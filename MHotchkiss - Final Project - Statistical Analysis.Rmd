@@ -45,6 +45,20 @@ syrup_vol_data$exposure <- factor(syrup_vol_data$exposure, levels = c("pre", "du
 
 ## Preliminary Data Visualisation
 
+#### Histogram of Corrected Daily Volumes
+
+```{r}
+syrup_vol_data %>% 
+  filter(!(day=="-6")) %>% 
+  filter(!(day=="-6")) %>% 
+  filter(!(treatment=="Sacrifice")) %>% 
+  filter(!(age=="7")) %>% 
+  filter(!(age=="9")) %>% 
+  ggplot((aes(volume24_corr))) +
+           geom_histogram(bins = 10)
+```
+
+
 #### Volume of Syrup Consumed in the Past 24h vs. Day, coloured by Treatment.
 
 Notes: Day -6 has been removed as this is the first day of the experiment and therefore there is no amount consumed for the past 24 hours. The Sacrifice treatment is removed because microcolonies used in this treatment were sacrificed on Day 5, and therefore have no data for Days 6-14. The age group Age 7 (7 week old bees) is removed as these samples were taken as part of a contingency plan that ultimately was not used, and so these samples will not be analyzed in the final paper.
