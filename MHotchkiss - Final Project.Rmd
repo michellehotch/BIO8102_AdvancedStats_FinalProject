@@ -40,15 +40,708 @@ The bumble bee species that I used for my experiment was the Common Eastern Bumb
 
 #### Experimental Set Up
 
-I purchased five bumble bee hives (source colonies) from BioBest (Leamington, ON). When source colonies were one and three weeks old, and additionally at seven weeks old for Source Colony 3 and nine weeks old for Source Colony 4, 70 worker bees were removed from each source colony and divided evenly into seven cup containers to form ten microcolonies per source colony. These microcolonies were assigned to one of seven treatments: Control, Solvent Control, 1 ppb chlorothalonil (CHT), 10 ppb CHT, 100 ppb CHT, 800 ppb CHT, or Sacrificial.\
+I purchased five bumble bee hives (source colonies) from BioBest (Leamington, ON). When source colonies were one and three weeks old, 70 worker bees were removed from each source colony and divided evenly into seven cup containers to form ten microcolonies per source colony. These microcolonies were assigned to one of seven treatments: Control, Solvent Control, 1 ppb chlorothalonil (CHT), 10 ppb CHT, 100 ppb CHT, or 800 ppb CHT.\
 \
-Microcolonies were all fed sterile sugar syrup for 6 days (Day -5 to Day 0) and allowed to acclimate to their containers. Starting on Day 0, microcolonies were fed sugar syrup containing their respective treatments for five days (Day 1 to Day 5). Control microcolonies were provided with sterile sugar while Solvent Control microcolonies were provided with sterile sugar syrup spiked with dimethyl sulfoxide (DMSO**)**. CHT exposed microcolonies were provided with sterile sugar syrup spiked with the appropriate concentration of CHT dissolved in DMSO. Sacrificial microcolonies were exposed to 800 ppb of chlorothalonil but were sacrificed on Day 5 in order to analyze bee bodies for CHT residues. After the five days of exposure was complete, all microcolonies were once again provided with non-contaminated sterile sugar syrup for the remainder of a two-week period (Day 6 to Day 14). The volume of sugar syrup each microcolony consumed was recorded daily.
+Microcolonies were all fed sterile sugar syrup for 6 days (Day -5 to Day 0) and allowed to acclimate to their containers. Starting on Day 0, microcolonies were fed sugar syrup containing their respective treatments for five days (Day 1 to Day 5). Control microcolonies were provided with sterile sugar while Solvent Control microcolonies were provided with sterile sugar syrup spiked with dimethyl sulfoxide (DMSO**)**. CHT exposed microcolonies were provided with sterile sugar syrup spiked with the appropriate concentration of CHT dissolved in DMSO. After the five days of exposure was complete, all microcolonies were once again provided with non-contaminated sterile sugar syrup for the remainder of a two-week period (Day 6 to Day 14). The volume of sugar syrup each microcolony consumed was recorded daily.
 
 #### Correcting Volumes for Time Between Recordings
 
-Sugar syrups volumes were recorded at different times during the day depending on whether a fecal sample was being taken that day. To account for this, the daily volume of sugar syrup consumed by each microcolony was divided by the number of hours between that daily volume recording and the previous recording to get the volume of sugar syrup consumed per microcolony per hour. This number was then multiplied by 24 to calculated the corrected daily volume of sugar syrup consumed per microcolony.
+Sugar syrups volumes were recorded at different times during the day depending on whether a fecal sample was also being taken that day. To account for this, the daily volume of sugar syrup consumed by each microcolony was divided by the approximate number of hours between that daily volume recording and the previous day's recording to get the volume of sugar syrup consumed per microcolony per hour for each day. This number was then multiplied by 24 to calculate the corrected daily volume of sugar syrup consumed per microcolony for each day.
+
+#### **Data Filtering**
+
+The initial data set contained data from additional treatments and ages whose fecal samples will not be used. Therefore, I was uninterested in their sugar consumption and removed their data from the dataset before analysis.
+
+```{r, echo = FALSE, eval = FALSE}
+syrup_vol_data <- read.csv("data-raw/volume24_corr.csv")
+
+syrup_vol_data_fil <-
+  syrup_vol_data %>% 
+  filter(!(day=="-6")) %>% 
+  filter(!(treatment=="Sacrifice")) %>% 
+  filter(!(age=="7")) %>% 
+  filter(!(age=="9"))
+
+syrup_vol_data_fil$day_fac <- as.factor(syrup_vol_data_fil$day)
+
+str(syrup_vol_data_fil)
+```
 
 #### Statistical Methods
 
-As my experimental design involves taking repeated measures from microcolonies, each made with bees from one of five different source colonies, I need to use a mixed model in order to account for nested random effects (specifically, microcolony nested within source colony). Whether I use a linear or generalized linear mixed model will depend on whether my residuals exhibit a Gaussian distribution or not.\
-\
+I performed statistical analyses in R version 4.0.5. I used the `r lme4` package to code the following linear mixed model:
+
+```{r, echo = FALSE, eval = FALSE}
+library(tidyverse)
+library(ggforce)
+library(lme4)
+library(lmerTest)
+library(emmeans)
+```
+
+```{r}
+lm_1 <- lmer(volume24_corr ~ treatment*day_fac*age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
+```
+
+In this initial model, treatment, day, and age are coded as fixed effects in a three-way interaction. As per my hypothesis and predictions, I predict treatment to have an effect on sugar syrup consumption and for this effect to be dependent on day (i.e., whether bees in the treatments have been exposed to pesticides or not). I included age in this interaction as well based on personal observations that microcolonies who were three weeks old appeared to consume less sugar syrup than microcolonies that were only one week old.
+
+Additionally, microcolony ID nested within source colony ID is included as a random effect to account for the fact that 1) my experimental design involves taking repeated measures from microcolonies, and measurements from the same microcolony are likely to be more similar than measurements from different microcolonies and 2) each microcolony is made with bees from one of five different source colonies, who will also likely exhibit less intra-source colony variation in sugar syrup consumption than inter-source colony variation.
+
+I then used `r anova` to test for the significance of the fixed effects (Type III ANOVA using the Satterthwaite method to calculate degrees of freedom), and `r ranova` to test for the significance of the random effects. Based on the results, I tested a second linear mixed model:
+
+```{r}
+lm_2 <- lmer(volume24_corr ~ day_fac + age + day_fac:age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
+```
+
+I then tested this model for all four key assumptions of linear mixed models:
+
+1.  Residuals are normally distributed
+2.  Homscedasticty (variance of residuals is constant across covariates)
+3.  Random effects have a Gaussian distribution
+4.  Residual variance is constant across all levels of a random effect
+
+Finally, I used the `r emmeans` package to perform the post-hoc analysis to determine which day-age combinations were significantly different from each other. I determined which contrasts I wanted to perform *a priori* as I was only interested in comparing day-age combinations that had at least one factor level in common (i.e., I was interested in the contrast between the sugar volume consumed for Age 1 Day 0 and Age 1 Day 3, or Age 1 Day 0 and Age 3 Day 0, but *not* between Age 1 Day 0 and Age 3 Day 3). I specified these constrasts (400 total) as a list that was used as the contrast method for \`r emmeans\`. I corrected for multiple comparisons using the sidak method.
+
+I generated two figures to display my post-hoc results: a compact letter display (CLD) using `r ggplot2` and a pairwise p-value plot (PWPP) using the `r pwpp` function in `r emmeans`. While I used the list of contrasts specified *a priori* for the PWPP, CLD plots have to compare all combinations of factors in order to determine which combinations receive which letters. As such the list of contrasts specified *a priori* was not used to generated the CLD.
+
+## Results
+
+#### Data Structure and Initial Visualization
+
+The average daily volume of sugar syrup consumed by microcolonies over the course of my experiment ranged from `r range(syrup_vol_data_fil$volume24_corr)` and appeared, based on initial visualizations, to vary by day and age but not by treatment (Fig. 1).
+
+```{r, echo=FALSE, fig.width=5, fig.height=2, fig.cap="Figure 1: Average volume (mL) of sugar syrup consumed over 24 hours by microcolonies exposed to varying concentrations of CHT over the course of a 20 day experiment. Left panel shows average volumes for bees that were one week old at the start of the experiment. Right panel shows average volumes for bees that were three weeks old at the start of the experiment."}
+
+syrup_vol_data_fil %>% 
+  group_by(treatment, day, age) %>% 
+  summarise(mean = mean(volume24_corr), se = (sd(volume24_corr)/sqrt(10))) %>% 
+  ggplot(aes(day, mean, color=treatment)) +
+  geom_line()+
+  geom_point()+
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,
+                 position=position_dodge(0.05))+
+  theme_classic() +
+  theme(
+    text = element_text(size = 14), 
+    axis.title.x=element_blank(),
+    axis.text.x = element_text(vjust=0.3, size = 12, color="black"), 
+    axis.ticks.x=element_blank(),
+    axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)),
+    axis.text.y = element_text(color="black", size = 10),
+    strip.placement = "outside", 
+    strip.text.x = element_text( #text in facet labels
+      size = 12, color = "black", face = "bold"),
+    strip.background = element_rect(#background of facet labels
+      color="white", fill="#ffffff", size=1.5),
+    panel.spacing.y = unit(2, "lines"),
+    legend.position = "right")+
+  
+    scale_color_viridis_d(name = "Treatment", direction = -1)+
+    scale_y_continuous(name ="Average Volume of Syrup \nConsumed Over 24h (mL)")+
+  facet_wrap(~age)
+```
+
+#### Model Selection
+
+The first model that I tested was a linear mixed model which included a three way interaction between treatment, day, and age, and microcolony nested within source colony ID as random effects (linear mixed model 1, LMM 1). Only three fixed effects were significant in the first model: day, age, and the interaction between day and age (Table 1), and no effects were "borderline significant" (i.e., close to the arbitrary 0.05 cut-off). All of the model's random effects were significant (Table 2).
+
+I therefore tested a second model with fixed effects consisting only of an interaction between day and age, day and age as individual fixed effects, but the same random effects structure (linear mixed model 2, LMM2). All terms in this model were significant, and so this model was chosen as the final model.
+
++-------+-------------------+---------------+---------------+-----------+--------------+-----------+-----------+
+|       | treatment:age:day | treatment:day | treatment:age | age:day   | treatment    | age       | day       |
++=======+===================+===============+===============+===========+==============+===========+===========+
+| LMM 1 | 0.5207            | 0.7351        | 0.4093        | 2.414e-05 | 0.1372       | 1.125e-05 | 1.054e-09 |
++-------+-------------------+---------------+---------------+-----------+--------------+-----------+-----------+
+| LMM 2 | Not included      | Not included  | Not included  | 1.869e-05 | Not included | 1.238e-05 | 6.080e-10 |
++-------+-------------------+---------------+---------------+-----------+--------------+-----------+-----------+
+
+: Table 1: P-values of the fixed effects included in linear mixed model 1 (LMM 1 - `r volume ~ treatment*day*age + (1|scID/mcID)`) and linear mixed model 2 (LMM 2 - `r volume ~ day:age + age + day + (1|scID/mcID)`).
+
++-------+-------------------------------+-------------------------------+
+|       | (1\|mcID/scID)                | (1\|scID)                     |
++=======+===============================+===============================+
+| LMM 1 | 3.29e-10                      | 0.0008582                     |
++-------+-------------------------------+-------------------------------+
+| LMM 2 | 7.224e-14                     | 0.001012                      |
++-------+-------------------------------+-------------------------------+
+
+: Table 2: P-values of the random effects included in linear mixed model 1 (LMM 1 - `r volume ~ treatment*day*age + (1|scID/mcID)`) and linear mixed model 2 (LMM 2 - `r volume ~ day:age + age + day + (1|scID/mcID)`).
+
+#### Linear Mixed Model Assumptions
+
+When testing that my final model, LMM 2, satisfied all assumptions for linear mixed models there were issues surrounding the assumption of normality for the residuals. While the histogram shows a Gaussian distribution, the QQ plot showed that my data was "heavy tailed" meaning that more data are found at the extremes of my distribution than would be if the distribution was perfectly Gaussian (Fig. 2). While I could transform my data so that it better git a Gaussian distribution, this would make interpretation of results later on more difficult and linear mixed models are very robust to violations of assumptions of normality [@Knief2018; @Schielzeth2020]. Therefore, I decided that despite the assumption of normality being violated, I would nonetheless keep linear mixed model 2 as my final model.
+
+All other assumptions of linear mixed models were satisfied by the model (see Statistics file in GitHub).
+
+```{r, echo = FALSE, fig.cap="Figure 2: Q-Q plot and histogram of residuals for LMM 2"}
+
+par(mfrow = c(1, 2)) # multiple graphs in a window
+qqnorm(residuals(lm_2)) 
+qqline(residuals(lm_2))
+hist(resid(lm_2)) 
+
+```
+
+#### Post-Hoc Tests
+
+As the model I selected had a significant interaction between age and day, I conducted post-hoc tests using the `r emmeans` to determine which day-age combinations were significantly different from each other, correcting for multiple comparisons. I have displayed these contrasts in two ways: a compact letter display based on pairwise comparisons of all combinations (Fig. 3) and a pairwise p-value plot containing only contrasts between combinations with shared levels of one factor (Fig. 4).
+
+```{r, message = FALSE, echo = FALSE, fig.width=5, fig.height=3, fig.cap="Figure 3: Average volume (mL) of sugar syrup consumed over 24 hours by microcolonies over the course of a 20 day experiment. Left panel shows average volumes for bees that were one week old at the start of the experiment. Right panel shows average volumes for bees that were three weeks old at the start of the experiment. Day-age combinations with the same letters are insignificantly different from one another."}
+
+library(emmeans)
+library(multcompView)
+
+lm_2_posthoc_forcld <- emmeans(lm_2, ~ day_fac:age)
+
+lm_2_posthoc_cld <- multcomp::cld(lm_2_posthoc_forcld, alpha = 0.05, Letters = LETTERS, adjust = "sidak")
+
+lm_2_posthoc_cld_nospaces <- 
+  lm_2_posthoc_cld %>% 
+    mutate(across(where(is.character), str_remove_all, pattern = fixed(" ")))
+
+syrup_vol_data_fil_letters <- syrup_vol_data_fil %>% 
+  group_by(day_fac, age) %>% 
+  summarise(mean = mean(volume24_corr), se = (sd(volume24_corr)/sqrt(10))) %>% 
+  inner_join(lm_2_posthoc_cld_nospaces) 
+
+
+syrup_vol_data_fil_letters$letters <- syrup_vol_data_fil_letters$.group
+
+syrup_vol_data_fil_letters %>% 
+  ggplot(aes(day_fac, mean, color=age, group=1)) +
+  geom_point()+
+  stat_summary(fun=sum, geom="line")+
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,
+                 position=position_dodge(0.05))+
+  geom_text(aes(x= day_fac, y=0.1 + mean + se,label=letters, angle = 90),hjust=0)+
+  theme_classic() +
+  
+  theme(
+    text = element_text(size = 14), 
+    axis.title.x=element_text(),
+    axis.text.x = element_text(vjust=0.3, size = 12, color="black"), 
+    axis.ticks.x=element_blank(),
+    axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)),
+    axis.text.y = element_text(color="black", size = 10),
+    strip.placement = "outside", 
+    strip.text.x = element_text( #text in facet labels
+      size = 12, color = "black", face = "bold"),
+    strip.background = element_rect(#background of facet labels
+      color="white", fill="#ffffff", size=1.5),
+    panel.spacing.y = unit(2, "lines"),
+    legend.position = "none")+
+    scale_color_manual(values=c("#60435F", "#5EB1BF"))+
+    scale_y_continuous(name ="Average Volume of Syrup \nConsumed Over 24h (mL)")+
+    xlab("Day")+
+    facet_wrap(~ age)
+```
+
+```{r, message=FALSE, echo=FALSE, eval = FALSE}
+
+lm_2_posthoc_means <- emmeans(lm_2, specs = ~day_fac:age)
+
+#Define what each day/age combination is in the vector
+
+DN51 = c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+DN41 = c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+DN31 = c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+DN21 = c(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+DN11 = c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D01 = c(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D11 = c(0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D21 = c(0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D31 = c(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D41 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D51 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D61 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D71 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D81 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D91 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D101 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D111 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D121 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D131 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D141 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+
+DN53 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+DN43 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+DN33 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+DN23 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+DN13 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D03 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D13 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D23 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D33 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D43 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D53 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D63 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0)
+
+D73 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0)
+
+D83 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+
+D93 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
+
+D103 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0)
+
+D113 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0)
+
+D123 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0)
+
+D133 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+
+D143 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+
+pwpp_comparisons <- 
+    list("-5 1 to -4 1"= DN51-DN41,
+         "-5 1 to -3 1" = DN51-DN31,
+         "-5 1 to -2 1" = DN51-DN21,
+         "-5 1 to -1 1" = DN51-DN11,
+         "-5 1 to 0 1" = DN51-D01,
+         "-5 1 to 1 1" = DN51-D11,
+         "-5 1 to 2 1" = DN51-D21,
+         "-5 1 to 3 1" = DN51-D31,
+         "-5 1 to 4 1" = DN51-D41,
+         "-5 1 to 5 1" = DN51-D51,
+         "-5 1 to 6 1" = DN51-D61,
+         "-5 1 to 7 1" = DN51-D71,
+         "-5 1 to 8 1" = DN51-D81,
+         "-5 1 to 9 1" = DN51-D91,
+         "-5 1 to 10 1" = DN51-D101,
+         "-5 1 to 11 1" = DN51-D111,
+         "-5 1 to 12 1" = DN51-D121,
+         "-5 1 to 13 1" = DN51-D131,
+         "-5 1 to 14 1" = DN51-D141,
+         "-5 1 to -5 3" = DN51-DN53,
+         "-4 1 to -3 1" = DN41-DN31,
+         "-4 1 to -2 1" = DN41-DN21,
+         "-4 1 to -1 1" = DN41-DN11,
+         "-4 1 to 0 1" = DN41-D01,
+         "-4 1 to 1 1" = DN41-D11,
+         "-4 1 to 2 1" = DN41-D21,
+         "-4 1 to 3 1" = DN41-D31,
+         "-4 1 to 4 1" = DN41-D41,
+         "-4 1 to 5 1" = DN41-D51,
+         "-4 1 to 6 1" = DN41-D61,
+         "-4 1 to 7 1" = DN41-D71,
+         "-4 1 to 8 1" = DN41-D81,
+         "-4 1 to 9 1" = DN41-D91,
+         "-4 1 to 10 1" = DN41-D101,
+         "-4 1 to 11 1" = DN41-D111,
+         "-4 1 to 12 1" = DN41-D121,
+         "-4 1 to 13 1" = DN41-D131,
+         "-4 1 to 14 1" = DN41-D141,
+         "-4 1 to -4 3" = DN41-DN43,
+         "-3 1 to -2 1" = DN31-DN21,
+         "-3 1 to -1 1" = DN31-DN11,
+         "-3 1 to 0 1" = DN31-D01,
+         "-3 1 to 1 1" = DN31-D11,
+         "-3 1 to 2 1" = DN31-D21,
+         "-3 1 to 3 1" = DN31-D31,
+         "-3 1 to 4 1" = DN31-D41,
+         "-3 1 to 5 1" = DN31-D51,
+         "-3 1 to 6 1" = DN31-D61,
+         "-3 1 to 7 1" = DN31-D71,
+         "-3 1 to 8 1" = DN31-D81,
+         "-3 1 to 9 1" = DN31-D91,
+         "-3 1 to 10 1" = DN31-D101,
+         "-3 1 to 11 1" = DN31-D111,
+         "-3 1 to 12 1" = DN31-D121,
+         "-3 1 to 13 1" = DN31-D131,
+         "-3 1 to 14 1" = DN31-D141,
+         "-3 1 to -3 3" = DN31-DN33,
+         "-2 1 to -1 1" = DN21-DN11,
+         "-2 1 to 0 1" = DN21-D01,
+         "-2 1 to 1 1" = DN21-D11,
+         "-2 1 to 2 1" = DN21-D21,
+         "-2 1 to 3 1" = DN21-D31,
+         "-2 1 to 4 1" = DN21-D41,
+         "-2 1 to 5 1" = DN21-D51,
+         "-2 1 to 6 1" = DN21-D61,
+         "-2 1 to 7 1" = DN21-D71,
+         "-2 1 to 8 1" = DN21-D81,
+         "-2 1 to 9 1" = DN21-D91,
+         "-2 1 to 10 1" = DN21-D101,
+         "-2 1 to 11 1" = DN21-D111,
+         "-2 1 to 12 1" = DN21-D121,
+         "-2 1 to 13 1" = DN21-D131,
+         "-2 1 to 14 1" = DN21-D141,
+         "-2 1 to -2 3" = DN21-DN23,
+         "-1 1 to 0 1" = DN11-D01,
+         "-1 1 to 0 1" = DN11-D11,
+         "-1 1 to 2 1" = DN11-D21,
+         "-1 1 to 3 1" = DN11-D31,
+         "-1 1 to 4 1" = DN11-D41,
+         "-1 1 to 5 1" = DN11-D51,
+         "-1 1 to 6 1" = DN11-D61,
+         "-1 1 to 7 1" = DN11-D71,
+         "-1 1 to 8 1" = DN11-D81,
+         "-1 1 to 9 1" = DN11-D91,
+         "-1 1 to 10 1" = DN11-D101,
+         "-1 1 to 11 1" = DN11-D111,
+         "-1 1 to 12 1" = DN11-D121,
+         "-1 1 to 13 1" = DN11-D131,
+         "-1 1 to 14 1" = DN11-D141,
+         "-1 1 to -1 3" = DN11-DN13,
+        "0 1 to 1 1" = D01-D11,
+        "0 1 to 2 1" = D01-D21,
+        "0 1 to 3 1" = D01-D31,
+        "0 1 to 4 1" = D01-D41,
+        "0 1 to 5 1" = D01-D51,
+        "0 1 to 6 1" = D01-D61,
+        "0 1 to 7 1" = D01-D71,
+        "0 1 to 8 1" = D01-D81,
+        "0 1 to 9 1" = D01-D91,
+        "0 1 to 10 1" = D01-D101,
+        "0 1 to 11 1" = D01-D111,
+        "0 1 to 12 1" = D01-D121,
+        "0 1 to 13 1" = D01-D131,
+        "0 1 to 14 1" = D01-D141,
+        "0 1 to 0 3" = D01-D03,
+        "1 1 to 2 1" = D11-D21,
+        "1 1 to 3 1" = D11-D31,
+        "1 1 to 4 1" = D11-D41,
+        "1 1 to 5 1" = D11-D51,
+        "1 1 to 6 1" = D11-D61,
+        "1 1 to 7 1" = D11-D71,
+        "1 1 to 8 1" = D11-D81,
+        "1 1 to 9 1" = D11-D91,
+        "1 1 to 10 1" = D11-D101,
+        "1 1 to 11 1" = D11-D111,
+        "1 1 to 12 1" = D11-D121,
+        "1 1 to 13 1" = D11-D131,
+        "1 1 to 14 1" = D11-D141,
+        "1 1 to 1 3" = D11-D13,
+        "2 1 to  3 1" = D21-D31,
+        "2 1 to  4 1" = D21-D41,
+        "2 1 to  5 1" = D21-D51,
+        "2 1 to  6 1" = D21-D61,
+        "2 1 to  7 1" = D21-D71,
+        "2 1 to  8 1" = D21-D81,
+        "2 1 to  9 1" = D21-D91,
+        "2 1 to  10 1" = D21-D101,
+        "2 1 to  11 1" = D21-D111,
+        "2 1 to  12 1" = D21-D121,
+        "2 1 to  13 1" = D21-D131,
+        "2 1 to  14 1" = D21-D141,
+        "2 1 to 2 3" = D21-D23,
+        "3 1 to  4 1" = D31-D41,
+        "3 1 to  5 1" = D31-D51,
+        "3 1 to  6 1" = D31-D61,
+        "3 1 to  7 1" = D31-D71,
+        "3 1 to  8 1" = D31-D81,
+        "3 1 to  9 1" = D31-D91,
+        "3 1 to  10 1" = D31-D101,
+        "3 1 to  11 1" = D31-D111,
+        "3 1 to  12 1" = D31-D121,
+        "3 1 to  13 1" = D31-D131,
+        "3 1 to  14 1" = D31-D141,
+        "3 1 to 3 3" = D31-D33,
+        "4 1 to  5 1" = D41-D51,
+        "4 1 to  6 1" = D41-D61,
+        "4 1 to  7 1" = D41-D71,
+        "4 1 to  8 1" = D41-D81,
+        "4 1 to  9 1" = D41-D91,
+        "4 1 to  10 1" = D41-D101,
+        "4 1 to  11 1" = D41-D111,
+        "4 1 to  12 1" = D41-D121,
+        "4 1 to  13 1" = D41-D131,
+        "4 1 to  14 1" = D41-D141,
+        "4 1 to 4 3" = D41-D43,
+        "5 1 to  6 1" = D51-D61,
+        "5 1 to  7 1" = D51-D71,
+        "5 1 to  8 1" = D51-D81,
+        "5 1 to  9 1" = D51-D91,
+        "5 1 to  10 1" = D51-D101,
+        "5 1 to  11 1" = D51-D111,
+        "5 1 to  12 1" = D51-D121,
+        "5 1 to  13 1" = D51-D131,
+        "5 1 to  14 1" = D51-D141,
+        "5 1 to 5 3"= D51-D53,
+        "6 1 to  7 1" = D61-D71,
+        "6 1 to  8 1" = D61-D81,
+        "6 1 to  9 1" = D61-D91,
+        "6 1 to  10 1" = D61-D101,
+        "6 1 to  11 1" = D61-D111,
+        "6 1 to  12 1" = D61-D121,
+        "6 1 to  13 1" = D61-D131,
+        "6 1 to  14 1" = D61-D141,
+        "6 1 to 6 3" = D61-D63,
+        "7 1 to  8 1" = D71-D81,
+        "7 1 to  9 1" = D71-D91,
+        "7 1 to  10 1" = D71-D101,
+        "7 1 to  11 1" = D71-D111,
+        "7 1 to  12 1" = D71-D121,
+        "7 1 to  13 1" = D71-D131,
+        "7 1 to  14 1" = D71-D141,
+        "7 1 to 7 3" = D71-D73,
+        "8 1 to 9 1" = D81-D91,
+        "8 1 to 10 1" = D81-D101,
+        "8 1 to 11 1" = D81-D111,
+        "8 1 to 12 1" = D81-D121,
+        "8 1 to 13 1" = D81-D131,
+        "8 1 to 14 1" = D81-D141,
+        "8 1 to 8 3" = D81-D83,
+        "9 1 to  10 1" = D91-D101,
+        "9 1 to  11 1" = D91-D111,
+        "9 1 to  12 1" = D91-D121,
+        "9 1 to  13 1" = D91-D131,
+        "9 1 to  14 1" = D91-D141,
+        "9 1 to 9 3" = D91-D93,
+        "10 1 to  11 1" = D101-D111,
+        "10 1 to  12 1" = D101-D121,
+        "10 1 to  13 1" = D101-D131,
+        "10 1 to  14 1" = D101-D141,
+        "10 1 to 10 3" = D101-D103,
+        "11 1 to  12 1" = D111-D121,
+        "11 1 to  13 1" = D111-D131,
+        "11 1 to  14 1" = D111-D141,
+        "11 1 to 11 3" = D111-D113,
+        "12 1 to  13 1" = D121-D131,
+        "12 1 to  14 1" = D121-D141,
+        "12 1 to 12 3" = D121-D123,
+        "13 1 to 14 1" = D131-D141,
+        "13 1 to 13 3" = D131-D133,
+        "14 1 to 14 3" = D141-D143,
+        "-5 3 to  -4 3" = DN53-DN43,
+        "-5 3 to  -3 3" = DN53-DN33,
+        "-5 3 to  -2 3" = DN53-DN23,
+        "-5 3 to  -1 3" = DN53-DN13,
+        "-5 3 to  0 3" = DN53-D03,
+        "-5 3 to  1 3" = DN53-D13,
+        "-5 3 to  2 3" = DN53-D23,
+        "-5 3 to  3 3" = DN53-D33,
+        "-5 3 to  4 3" = DN53-D43,
+        "-5 3 to  5 3" = DN53-D53,
+        "-5 3 to  6 3" = DN53-D63,
+        "-5 3 to  7 3" = DN53-D73,
+        "-5 3 to  8 3" = DN53-D83,
+        "-5 3 to  9 3" = DN53-D93,
+        "-5 3 to  10 3" = DN53-D103,
+        "-5 3 to  11 3" = DN53-D113,
+        "-5 3 to  12 3" = DN53-D123,
+        "-5 3 to  13 3" = DN53-D133,
+        "-5 3 to  14 3" = DN53-D143,
+        "-4 3 to  -3 3" = DN43-DN33,
+        "-4 3 to  -2 3" = DN43-DN23,
+        "-4 3 to  -1 3" = DN43-DN13,
+        "-4 3 to  0 3" = DN43-D03,
+        "-4 3 to  1 3" = DN43-D13,
+        "-4 3 to  2 3" = DN43-D23,
+        "-4 3 to  3 3" = DN43-D33,
+        "-4 3 to  4 3" = DN43-D43,
+        "-4 3 to  5 3" = DN43-D53,
+        "-4 3 to  6 3" = DN43-D63,
+        "-4 3 to  7 3" = DN43-D73,
+        "-4 3 to  8 3" = DN43-D83,
+        "-4 3 to  9 3" = DN43-D93,
+        "-4 3 to  10 3" = DN43-D103,
+        "-4 3 to  11 3" = DN43-D113,
+        "-4 3 to  12 3" = DN43-D123,
+        "-4 3 to  13 3" = DN43-D133,
+        "-4 3 to  14 3" = DN43-D143,
+        "-3 3 to  -2 3" = DN33-DN23,
+        "-3 3 to  -1 3" = DN33-DN13,
+        "-3 3 to  0 3" = DN33-D03,
+        "-3 3 to  1 3" = DN33-D13,
+        "-3 3 to  2 3" = DN33-D23,
+        "-3 3 to  3 3" = DN33-D33,
+        "-3 3 to  4 3" = DN33-D43,
+        "-3 3 to  5 3" = DN33-D53,
+        "-3 3 to  6 3" = DN33-D63,
+        "-3 3 to  7 3" = DN33-D73,
+        "-3 3 to  8 3" = DN33-D83,
+        "-3 3 to  9 3" = DN33-D93,
+        "-3 3 to  10 3" = DN33-D103,
+        "-3 3 to  11 3" = DN33-D113,
+        "-3 3 to  12 3" = DN33-D123,
+        "-3 3 to  13 3" = DN33-D133,
+        "-3 3 to  14 3" = DN33-D143,
+        "-2 3 to  -1 3" = DN23-DN13,
+        "-2 3 to  0 3" = DN23-D03,
+        "-2 3 to  1 3" = DN23-D13,
+        "-2 3 to  2 3" = DN23-D23,
+        "-2 3 to  3 3" = DN23-D33,
+        "-2 3 to  4 3" = DN23-D43,
+        "-2 3 to  5 3" = DN23-D53,
+        "-2 3 to  6 3" = DN23-D63,
+        "-2 3 to  7 3" = DN23-D73,
+        "-2 3 to  8 3" = DN23-D83,
+        "-2 3 to  9 3" = DN23-D93,
+        "-2 3 to  10 3" = DN23-D103,
+        "-2 3 to  11 3" = DN23-D113,
+        "-2 3 to  12 3" = DN23-D123,
+        "-2 3 to  13 3" = DN23-D133,
+        "-2 3 to  14 3" = DN23-D143,
+        "-1 3 to  0 3" = DN13-D03,
+        "-1 3 to  1 3" = DN13-D13,
+        "-1 3 to  2 3" = DN13-D23,
+        "-1 3 to  3 3" = DN13-D33,
+        "-1 3 to  4 3" = DN13-D43,
+        "-1 3 to  5 3" = DN13-D53,
+        "-1 3 to  6 3" = DN13-D63,
+        "-1 3 to  7 3" = DN13-D73,
+        "-1 3 to  8 3" = DN13-D83,
+        "-1 3 to  9 3" = DN13-D93,
+        "-1 3 to  10 3" = DN13-D103,
+        "-1 3 to  11 3" = DN13-D113,
+        "-1 3 to  12 3" = DN13-D123,
+        "-1 3 to  13 3" = DN13-D133,
+        "-1 3 to  14 3" = DN13-D143,
+        "0 3 to  1 3" = D03-D13,
+        "0 3 to  2 3" = D03-D23,
+        "0 3 to  3 3" = D03-D33,
+        "0 3 to  4 3" = D03-D43,
+        "0 3 to  5 3" = D03-D53,
+        "0 3 to  6 3" = D03-D63,
+        "0 3 to  7 3" = D03-D73,
+        "0 3 to  8 3" = D03-D83,
+        "0 3 to  9 3" = D03-D93,
+        "0 3 to  10 3" = D03-D103,
+        "0 3 to  11 3" = D03-D113,
+        "0 3 to  12 3" = D03-D123,
+        "0 3 to  13 3" = D03-D133,
+        "0 3 to  14 3" = D03-D143,
+        "1 3 to  2 3" = D13-D23,
+        "1 3 to  3 3" = D13-D33,
+        "1 3 to  4 3" = D13-D43,
+        "1 3 to  5 3" = D13-D53,
+        "1 3 to  6 3" = D13-D63,
+        "1 3 to  7 3" = D13-D73,
+        "1 3 to  8 3" = D13-D83,
+        "1 3 to  9 3" = D13-D93,
+        "1 3 to  10 3" = D13-D103,
+        "1 3 to  11 3" = D13-D113,
+        "1 3 to  12 3" = D13-D123,
+        "1 3 to  13 3" = D13-D133,
+        "1 3 to  14 3" = D13-D143,
+        "2 3 to  3 3" = D23-D33,
+        "2 3 to  4 3" = D23-D43,
+        "2 3 to  5 3" = D23-D53,
+        "2 3 to  6 3" = D23-D63,
+        "2 3 to  7 3" = D23-D73,
+        "2 3 to  8 3" = D23-D83,
+        "2 3 to  9 3" = D23-D93,
+        "2 3 to  10 3" = D23-D103,
+        "2 3 to  11 3" = D23-D113,
+        "2 3 to  12 3" = D23-D123,
+        "2 3 to  13 3" = D23-D133,
+        "2 3 to  14 3" = D23-D143,
+        "3 3 to  4 3" = D33-D43,
+        "3 3 to  5 3" = D33-D53,
+        "3 3 to  6 3" = D33-D63,
+        "3 3 to  7 3" = D33-D73,
+        "3 3 to  8 3" = D33-D83,
+        "3 3 to  9 3" = D33-D93,
+        "3 3 to  10 3" = D33-D103,
+        "3 3 to  11 3" = D33-D113,
+        "3 3 to  12 3" = D33-D123,
+        "3 3 to  13 3" = D33-D133,
+        "3 3 to  14 3" = D33-D143,
+        "4 3 to  5 3" = D43-D53,
+        "4 3 to  6 3" = D43-D63,
+        "4 3 to  7 3" = D43-D73,
+        "4 3 to  8 3" = D43-D83,
+        "4 3 to  9 3" = D43-D93,
+        "4 3 to  10 3" = D43-D103,
+        "4 3 to  11 3" = D43-D113,
+        "4 3 to  12 3" = D43-D123,
+        "4 3 to  13 3" = D43-D133,
+        "4 3 to  14 3" = D43-D143,
+        "5 3 to  6 3" = D53-D63,
+        "5 3 to  7 3" = D53-D73,
+        "5 3 to  8 3" = D53-D83,
+        "5 3 to  9 3" = D53-D93,
+        "5 3 to  10 3" = D53-D103,
+        "5 3 to  11 3" = D53-D113,
+        "5 3 to  12 3" = D53-D123,
+        "5 3 to  13 3" = D53-D133,
+        "5 3 to  14 3" = D53-D143,
+        "6 3 to  7 3" = D63-D73,
+        "6 3 to  8 3" = D63-D83,
+        "6 3 to  9 3" = D63-D93,
+        "6 3 to  10 3" = D63-D103,
+        "6 3 to  11 3" = D63-D113,
+        "6 3 to  12 3" = D63-D123,
+        "6 3 to  13 3" = D63-D133,
+        "6 3 to  14 3" = D63-D143,
+        "7 3 to  8 3" = D73-D83,
+        "7 3 to  9 3" = D73-D93,
+        "7 3 to  10 3" = D73-D103,
+        "7 3 to  11 3" = D73-D113,
+        "7 3 to  12 3" = D73-D123,
+        "7 3 to  13 3" = D73-D133,
+        "7 3 to  14 3" = D73-D143,
+        "8 3 to  9 3" = D83-D93,
+        "8 3 to  10 3" = D83-D103,
+        "8 3 to  11 3" = D83-D113,
+        "8 3 to  12 3" = D83-D123,
+        "8 3 to  13 3" = D83-D133,
+        "8 3 to  14 3" = D83-D143,
+        "9 3 to 10 3" = D93-D103,
+        "9 3 to 11 3" = D93-D113,
+        "9 3 to 12 3" = D93-D123,
+        "9 3 to 13 3" = D93-D133,
+        "9 3 to 14 3" = D93-D143,
+        "10 3 to 11 3" = D103-D113,
+        "10 3 to 12 3" = D103-D123,
+        "10 3 to 13 3" = D103-D133,
+        "10 3 to 14 3" = D103-D143,
+        "11 3 to  12 3" = D113-D123,
+        "11 3 to  13 3" = D113-D133,
+        "11 3 to  14 3" = D113-D143,
+        "12 3 to 13 3" = D123-D133,
+        "12 3 to 14 3" = D123-D143,
+        "13 3 to 14 3" = D133-D143
+       )
+```
+
+```{r, fig.height=8, fig.width=5, fig.caption = "Figure 4: Pairwise p-value plot of all contrasts between day-age combinations that share one factor level. Average volume of sugar syrup consumed over 24 hours for each day-age combination are shown in boxes at the far left of the upper panel. Dashed black line separates day-age combinations with Age 3 from Age 1. Bottom panel shows contrasts that have a p-value < 0.1."}
+
+lm_2_posthoc_fig <- emmeans(lm_2, ~day_fac:age)
+
+pwpp_fig <- 
+  pwpp(lm_2_posthoc_fig, method = pwpp_comparisons, adjust = "sidak", type = "response", sort = FALSE, ylab = "Day-Age Combination", xlab = "P-value")+
+  ggplot2::theme_classic()+
+  ggplot2::theme(
+    axis.text.x = element_text(color="black"), 
+    axis.text.y = element_text(color="black"),
+    panel.grid.major.y = element_line(colour="grey80", size=0.3)
+  )+
+  ggplot2::geom_hline(yintercept = 20.5, linetype = "dashed")+
+  facet_zoom(xlim = c(0.01, 0.63), zoom.size = 1)
+  
+pwpp_fig
+
+```

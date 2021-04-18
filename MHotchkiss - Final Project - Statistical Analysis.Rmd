@@ -43,70 +43,41 @@ syrup_vol_data$treatment <- factor(syrup_vol_data$treatment, levels = c("Control
 syrup_vol_data$exposure <- factor(syrup_vol_data$exposure, levels = c("pre", "during", "post"))
 ```
 
+#### Filtering dataset for analysis
+
+Made permanent dataset without Day -6, Sacrifice treatment, or Ages 7 and 9. Also made new variable for day coded as a factor to examine if any days are significantly different from one another.
+
+Notes: Day -6 has been removed as this is the first day of the experiment and therefore there is no amount consumed for the past 24 hours. The Sacrifice treatment is removed because microcolonies used in this treatment were sacrificed on Day 5, and therefore have no data for Days 6-14. The age group Age 7 (7 week old bees) is removed as these samples were taken as part of a contingency plan that ultimately was not used.
+
+```{r}
+syrup_vol_data_fil <-
+  syrup_vol_data %>% 
+  filter(!(day=="-6")) %>% 
+  filter(!(treatment=="Sacrifice")) %>% 
+  filter(!(age=="7")) %>% 
+  filter(!(age=="9"))
+
+syrup_vol_data_fil$day_fac <- as.factor(syrup_vol_data_fil$day)
+
+str(syrup_vol_data_fil)
+```
+
 ## Preliminary Data Visualisation
 
 #### Histogram of Corrected Daily Volumes
 
 ```{r}
-syrup_vol_data %>% 
-  filter(!(day=="-6")) %>% 
-  filter(!(day=="-6")) %>% 
-  filter(!(treatment=="Sacrifice")) %>% 
-  filter(!(age=="7")) %>% 
-  filter(!(age=="9")) %>% 
+syrup_vol_data_fil %>% 
   ggplot((aes(volume24_corr))) +
            geom_histogram(bins = 10)
 ```
 
-
-#### Volume of Syrup Consumed in the Past 24h vs. Day, coloured by Treatment.
-
-Notes: Day -6 has been removed as this is the first day of the experiment and therefore there is no amount consumed for the past 24 hours. The Sacrifice treatment is removed because microcolonies used in this treatment were sacrificed on Day 5, and therefore have no data for Days 6-14. The age group Age 7 (7 week old bees) is removed as these samples were taken as part of a contingency plan that ultimately was not used, and so these samples will not be analyzed in the final paper.
-
-```{r}
-syrup_vol_data %>% 
-  filter(!(day=="-6")) %>% 
-  filter(!(treatment=="Sacrifice")) %>% 
-  filter(!(age=="7")) %>% 
-  filter(!(age=="9")) %>% 
-  group_by(treatment, day) %>% 
-  summarise(mean = mean(volume24_corr), se = (sd(volume24_corr)/sqrt(10))) %>% 
-  ggplot(aes(day, mean, color=treatment)) +
-  geom_line()+
-  geom_point()+
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,
-                 position=position_dodge(0.05))+
-  theme_classic() +
-  
-  theme(
-    text = element_text(size = 14), 
-    axis.title.x=element_blank(),
-    axis.text.x = element_text(vjust=0.3, size = 12, color="black"), 
-    axis.ticks.x=element_blank(),
-    axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)),
-    axis.text.y = element_text(color="black", size = 10),
-    strip.placement = "outside", 
-    strip.text.x = element_text( #text in facet labels
-      size = 12, color = "black", face = "bold"),
-    strip.background = element_rect(#background of facet labels
-      color="white", fill="#ffffff", size=1.5),
-    panel.spacing.y = unit(2, "lines"),
-    legend.position = "right")+
-  
-    scale_color_viridis_d(name = "Treatment", direction = -1)+
-    scale_y_continuous(name ="Average Volume of Syrup \nConsumed Over 24h (mL)")
-```
-
-Appears that days may differ significantly, but treatments all seem quite similar.
+Data appears relatively normally distributed.
 
 #### Volume of Syrup Consumed in the Past 24h vs. Day, coloured by Treatment, faceted by Age
 
 ```{r}
-syrup_vol_data %>% 
-  filter(!(day=="-6")) %>% 
-  filter(!(treatment=="Sacrifice")) %>% 
-  filter(!(age=="7")) %>% 
-  filter(!(age=="9")) %>% 
+syrup_vol_data_fil %>% 
   group_by(treatment, day, age) %>% 
   summarise(mean = mean(volume24_corr), se = (sd(volume24_corr)/sqrt(10))) %>% 
   ggplot(aes(day, mean, color=treatment)) +
@@ -135,30 +106,13 @@ syrup_vol_data %>%
   facet_wrap(~age)
 ```
 
-Appears there may be significant differences across ages too.
+Appears there may be significant differences across ages and days too.
 
 ## Linear Mixed Models
 
-#### Making dataset for analysis
-
-Make permanent dataset without Day -6, Sacrifice treatment, or Age 7. Also make new variable for day coded as a factor, so that we can examine if any days are significantly different from one another.
-
-```{r}
-syrup_vol_data_fil <-
-  syrup_vol_data %>% 
-  filter(!(day=="-6")) %>% 
-  filter(!(treatment=="Sacrifice")) %>% 
-  filter(!(age=="7")) %>% 
-  filter(!(age=="9"))
-
-syrup_vol_data_fil$day_fac <- as.factor(syrup_vol_data_fil$day)
-
-str(syrup_vol_data_fil)
-```
-
 #### Linear Mixed Model Selection
 
-Note: I will be coding random intercepts only as coding a random slope for every fixed factor will not be feasible.
+###### Model1
 
 ```{r}
 lm_1 <- lmer(volume24_corr ~ treatment*day_fac*age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
@@ -172,7 +126,7 @@ Look at summary.
 summary(lm_1)
 ```
 
-Perform an ANOVA (Type III) to determine the significance of the fixed effects. Note: I am including my nested random effects in my model to account for inherent non-independence in my experimental design. Use `r ranova` to determine significance of random effects. 
+Perform an ANOVA (Type III) to determine the significance of the fixed effects. Note: I am including my nested random effects in my model to account for inherent non-independence in my experimental design. Use `r ranova` to determine significance of random effects.
 
 ```{r}
 anova(lm_1) #note: this is lmerTest anova which, in this case, is a type III anova for fixed-effects terms with the Satterthwaite method for denominator degrees of freedom
@@ -180,11 +134,15 @@ anova(lm_1) #note: this is lmerTest anova which, in this case, is a type III ano
 ranova(lm_1)
 ```
 
-Based on ANOVA, fixed effects `r day_fac`, `r age`, and `r day_fac:age` are significant (p < 0.05). All other fixed factors are insignificant. Random factors are also significant. Most importantly, no effects have p-values that are "borderline significant" (i.e., close to the arbitrary 0.05 cutoff). Therefore, I will code a second model keeping only the significant terms.
+Based on ANOVA, fixed effects `r day_fac`, `r age`, and `r day_fac:age` are significant (p \< 0.05). All other fixed factors are insignificant. Random effects are also significant. Most importantly, no effects have p-values that are "borderline significant" (i.e., close to the arbitrary 0.05 cutoff). Therefore, I will code a second model keeping only the significant terms.
+
+###### Model 2
 
 ```{r}
 lm_2 <- lmer(volume24_corr ~ day_fac + age + day_fac:age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
 ```
+
+No errors for model 2.
 
 Summary and ANOVA for linear mixed model 2.
 
@@ -213,7 +171,7 @@ As a follow-up, will run formal tests.
 shapiro.test(residuals(lm_2))
 ```
 
-Formal test confirms that the normality assumption is violated. HOWEVER, Shapiro-Wilk test is very sensitive and linear mixed models are reasonably robust to violations of non-normality (`r cite this later`). **Additionally, because the QQ plot indicates this is a heavy tailed distribution, my estimated p-values will be larger as my standard error is presumed to be larger under a gaussian distribution**
+Formal test confirms that the normality assumption is violated. HOWEVER, Shapiro-Wilk test is very sensitive and linear mixed models are reasonably robust to violations of non-normality [@Knief2018; @Schielzeth2020].
 
 #### Assumption 2: Homscedasticty (variance of residuals is constant across covariates)
 
@@ -255,27 +213,25 @@ Widths of bars all appear to be equal.
 
 ## Post-hoc Tests and Figures
 
-To determine which day-age pairings are significantly different from each other, I ran a post-hoc test using `r emmeans`.
+#### Set Up
+
+Load libraries for post-hoc tests.
 
 ```{r}
 library(emmeans)
 library(multcompView)
 ```
 
-#### Post-hoc Test 
+#### Generate Comparison List
 
-###### Comparison List 
-
-For post-hoc tests, I had a list of contrasts that I had decided upon *a priori*. Specifically, I was only interested in contrasts between combinations of day and age that either shared a day *or* shared an age. For example, I was interested in the contrast between the sugar volume consumed for Age 1 Day 0 and Age 1 Day 3, or Age 1 Day 0 and Age 3 Day 0, but **not** between Age 1 Day 0 and Age 3 Day 3. This list of constrasts had to be coded so that I could input it as the contrast method for `r emmeans`.
-
-To create the list, I first generated a list of marginal means for all `r day` and `r age` combinations. 
+To create the list, I first generated a list of marginal means for all `r day` and `r age` combinations.
 
 ```{r}
 lm_2_posthoc_means <- emmeans(lm_2, specs = ~day_fac:age)
 lm_2_posthoc_means
 ```
 
-I then assigned each marginal mean to a vector where 1 was its place in the list of marginal means and 0 was used in every other spot. 
+I then assigned each marginal mean to a vector where 1 was its place in the list of marginal means and 0 was used in every other spot.
 
 ```{r}
 #Define what each day/age combination is in the vector
@@ -362,7 +318,7 @@ D133 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 D143 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 ```
 
-I then generated a named list of all contrasts that I was interested in making. 
+I then generated a named list of all contrasts that I was interested in making.
 
 ```{r}
 
@@ -768,16 +724,18 @@ pwpp_comparisons <-
         "12 3 to 14 3" = D123-D143,
         "13 3 to 14 3" = D133-D143
        )
+
+str(pwpp_comparisons)
 ```
 
-Then used the `r contrast` function with `r method` specified to be my named list. 
+#### Post-hoc Test
+
+Used the `r contrast` function with `r method` specified to be my named list.
 
 ```{r}
-lm_2_posthoc_comparisons <- contrast(lm_2_posthoc_means, method = pwpp_comparisons)
+lm_2_posthoc_comparisons <- contrast(lm_2_posthoc_means, method = pwpp_comparisons, adjust = "sidak")
 lm_2_posthoc_comparisons
 ```
-
-This generates an incredibly long list of contrasts that will be much easier to interpret visually. 
 
 #### Compact Letter Display
 
@@ -787,7 +745,7 @@ I assigned letters to each age-day combination so that I could generate a Compac
 lm_2_posthoc_forcld <- emmeans(lm_2, ~ day_fac:age)
 lm_2_posthoc_forcld
 
-lm_2_posthoc_cld <- multcomp::cld(lm_2_posthoc_forcld, alpha = 0.05, Letters = LETTERS)
+lm_2_posthoc_cld <- multcomp::cld(lm_2_posthoc_forcld, alpha = 0.05, Letters = LETTERS, adjust = "sidak")
 lm_2_posthoc_cld
 ```
 
@@ -816,7 +774,7 @@ syrup_vol_data_fil_letters %>%
   
   theme(
     text = element_text(size = 14), 
-    axis.title.x=element_blank(),
+    axis.title.x=element_text(),
     axis.text.x = element_text(vjust=0.3, size = 12, color="black"), 
     axis.ticks.x=element_blank(),
     axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)),
@@ -827,9 +785,10 @@ syrup_vol_data_fil_letters %>%
     strip.background = element_rect(#background of facet labels
       color="white", fill="#ffffff", size=1.5),
     panel.spacing.y = unit(2, "lines"),
-    legend.position = "right")+
+    legend.position = "none")+
     scale_color_manual(values=c("#60435F", "#5EB1BF"))+
     scale_y_continuous(name ="Average Volume of Syrup \nConsumed Over 24h (mL)")+
+    xlab("Day")+
     facet_wrap(~ age)
 ```
 
@@ -842,19 +801,18 @@ lm_2_posthoc_fig <- emmeans(lm_2, ~day_fac:age)
 lm_2_posthoc_fig
 ```
 
-
 ```{r}
 pwpp_fig <- 
-  pwpp(lm_2_posthoc_fig, method = pwpp_comparisons, type = "response", sort = FALSE, ylab = "Day-Age Combination", xlab = "P-value")+
+  pwpp(lm_2_posthoc_fig, method = pwpp_comparisons, adjust = "sidak", type = "response", sort = FALSE, ylab = "Day-Age Combination", xlab = "P-value")+
   ggplot2::theme_classic()+
   ggplot2::theme(
     axis.text.x = element_text(color="black"), 
     axis.text.y = element_text(color="black"),
+    panel.grid.major.y = element_line(colour="grey80", size=0.3)
   )+
   ggplot2::geom_hline(yintercept = 20.5, linetype = "dashed")+
-  facet_zoom(xlim = c(0.01, 0.08), zoom.size = 1)
+  facet_zoom(xlim = c(0.01, 0.63), zoom.size = 1)
   
 pwpp_fig
 
 ```
-
