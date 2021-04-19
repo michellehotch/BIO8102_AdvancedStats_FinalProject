@@ -107,8 +107,6 @@ syrup_vol_data_fil %>%
   facet_wrap(~age)
 ```
 
-Appears there may be significant differences across ages and days too.
-
 ## Linear Mixed Models
 
 #### Linear Mixed Model Selection
@@ -135,7 +133,7 @@ anova(lm_1) #note: this is lmerTest anova which, in this case, is a type III ano
 ranova(lm_1)
 ```
 
-Based on ANOVA, fixed effects `r day_fac`, `r age`, and `r day_fac:age` are significant (p \< 0.05). All other fixed factors are insignificant. Random effects are also significant. Most importantly, no effects have p-values that are "borderline significant" (i.e., close to the arbitrary 0.05 cutoff). Therefore, I will code a second model keeping only the significant terms.
+Based on ANOVA, fixed effects `r day_fac`, `r age`, and `r day_fac:age` are significant (p < 0.05). All other fixed factors are insignificant. Random effects are also significant. Most importantly, no effects have p-values that are "borderline significant" (i.e., close to the arbitrary 0.05 cutoff). Therefore, I will code a second model keeping only the significant terms.
 
 ###### Model 2
 
@@ -164,7 +162,7 @@ qqline(residuals(lm_2))
 hist(resid(lm_2)) 
 ```
 
-QQplot is quite off of the lines, but the histogram looks very Gaussian.
+QQplot is heavy-tailed, but the histogram looks Gaussian.
 
 As a follow-up, will run formal tests.
 
@@ -194,7 +192,7 @@ qqline(r1$condval)
 str(r1)
 ```
 
-Residuals of random effects don't look quite as nice. `r is this a huge problem?`
+Histogram and QQ line are actually pretty good!
 
 #### Assumption 4: Residual variance is constant across all levels of a random effect
 
@@ -740,8 +738,6 @@ lm_2_posthoc_comparisons
 
 #### Compact Letter Display
 
-I assigned letters to each age-day combination so that I could generate a Compact Letter Display Figure.
-
 ```{r}
 lm_2_posthoc_forcld <- emmeans(lm_2, ~ day_fac:age)
 lm_2_posthoc_forcld
@@ -795,8 +791,6 @@ syrup_vol_data_fil_letters %>%
 ```
 
 #### Pairwise P-value Plot
-
-A better way to visualize pairwise comparisons is a pairwise p-value plot.
 
 ```{r}
 lm_2_posthoc_fig <- emmeans(lm_2, ~day_fac:age)

@@ -2,57 +2,59 @@
 title: "MHotchkiss - Final Project"
 author: "Michelle Hotchkiss"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 bibliography: references.bib
 ---
 
 ## Introduction
 
-#### Background and Study System
+### Background and Study System
 
 Bees are important pollinators both for agricultural crops and natural plant communities. In recent decades, bee populations have experienced major declines, threatening the pollination services they provide [@Goulson2015]. Factors that are hypothesized to be contributing to these declines are declines in floral resources, increases in pathogen loads, and increased pesticide use [@Goulson2015].\
 \
-Bees are exposed to routinely exposed to pesticides when foraging on contaminated pollen and nectar, and exposure to multiple concurrent pesticides is the norm [@Mullin2010]. While pesticides can have direct negative effects on bee hosts [e.g., @Siviter2020; @Baron2017a; @Bernauer2015; @Balbuena2015], recent experiments have also demonstrated that pesticide exposure can disturb bee gut microbiotas.
+Bees are routinely exposed to pesticides when foraging on contaminated pollen and nectar, and exposure to multiple concurrent pesticides is the norm [@Mullin2010]. While pesticides can have direct negative effects on bee hosts [e.g., @Siviter2020; @Baron2017a; @Bernauer2015; @Balbuena2015], recent experiments have also demonstrated that pesticide exposure can disturb bee gut microbiotas.
 
 Social corbiculate bees (such as honey and bumble bees) have a highly inter- and intra-specifically conserved gut microbiota [@Kwong2016] whose presence provides a suite of benefits to the host organism [e.g., @Zheng2017; @Zheng2016; @Engel2012; @Kenerová2017; @Koch2011; @Mockler2018]. Unfortunately, multiple studies have now shown that pesticide exposure can disturbing the community structure of bee gut microbiotas [e.g., @Motta2018; @Rouzé2019; @Kakumanu2016; @Liu2020], potentially putting the aforementioned benefits to bee hosts at risk.
 
-However, few studies on pesticide-induced disturbances in bee gut microbiotas have taken into account that pesticide concentrations in the environment are not stable but vary temporally [@Fantke2013]. Many pesticides are applied via spraying which generally occurs once every couple of weeks. In this scenario, when accounting for floral and pollen turnover rates, pesticides are likely to present in pollen and nectar for less than one week [@Hicks2016]. This shorter duration of pesticide exposure provides a pesticide-free window between spray dates during which pesticide-disturbed bee gut microbiotas may be able to recover from pesticide exposure. One pesticide that is applied via spraying is chlorothalonil, a fungicide that is commonly used on tomato and cucurbit crops which bumble bees are purchased to pollinate. Chlorothalonil is capable of disturbing bee gut microbiotas via chronic exposure [@Kakumanu2016] but it remains unknown if it could disturb bee gut microbiotas under a more realistic exposure regime.\
+However, few studies on pesticide-induced disturbances in bee gut microbiotas have taken into account that pesticide concentrations in the environment are not stable but vary temporally [@Fantke2013]. Many pesticides are applied via spraying which generally occurs once every few weeks. In this scenario, when accounting for floral and pollen turnover rates, pesticides are likely to present in pollen and nectar for less than one week [@Hicks2016]. This shorter duration of pesticide exposure provides a pesticide-free window between spray dates during which pesticide-disturbed bee gut microbiotas may be able to recover from pesticide exposure. One pesticide that is applied via spraying is chlorothalonil, a fungicide that is commonly used on tomato and cucurbit crops which bumble bees are purchased to pollinate. Chlorothalonil is capable of disturbing bee gut microbiotas via chronic exposure [@Kakumanu2016] but it remains unknown if it is able to disturb bee gut microbiotas under a more realistic exposure regime.\
 \
-For Chapter 1 of my PhD thesis, I aimto determine: 1) Is chlorothalonil capable of disturbing bumble bee gut microbiotas under an acute exposure regime?, and 2) Are bumble bee gut microbiotas capable of recovering from pesticide-induced disturbance within the two week period between exposure events?\
+For Chapter 1 of my PhD thesis, I am asking: 1) Is chlorothalonil capable of disturbing bumble bee gut microbiotas under a realistic exposure regime?, and 2) Are bumble bee gut microbiotas capable of recovering from pesticide-induced disturbance within the two-week period between exposure events?\
 \
-To answer these questions, I designed an experiment wherein I exposed microcolonies of bumble bees to varying concentrations of chlorothalonil in their sugar syrup and sampled their gut microbiotas both during and after chlorothalonil exposure. While I have completed sample collection, I do not yet have the microbiota sequence data to answer my primary questions for this chapter. However, I do have the amount of sugar syrup that bees in each treatment consumed during my experiment. As almost all microbial members of bee gut microbiotas use simple sugars to fuel their metabolism [@Kwong2016], the amount of sugar syrup consumed by each microcolony likely has a direct impact on their gut microbiota. Therefore, it will be useful to know if sugar syrup consumption varies significantly between treatments when interpreting any significant shifts in taxonomic community structure between bee gut microbiotas of different treatments.
+To answer these questions, I designed an experiment wherein I exposed microcolonies of bumble bees to varying concentrations of chlorothalonil in sugar syrup and sampled their gut microbiotas both during and after chlorothalonil exposure. While I have completed sample collection, I do not yet have the microbiota sequence data to answer my primary questions for this chapter. However, I do have the amount of sugar syrup that bees in each treatment consumed during my experiment. As almost all microbial members of bee gut microbiotas use simple sugars to fuel their metabolism [@Kwong2016], the amount of sugar syrup consumed by each microcolony likely has a direct impact on their gut microbiota. Therefore, it will be useful to know if sugar syrup consumption varies significantly between treatments when interpreting any significant shifts in taxonomic community structure between bee gut microbiotas of different treatments.
 
-#### Hypothesis
+### Hypothesis
 
-The presence of chlorothalonil in sugar syrup alters bees' feeding behaviour. This has been shown before with other pesticides with some causing bees to increase [@Kessler2015] and others causing bees to decrease their sugar syrup consumption [@Thompson2015].
+The presence of chlorothalonil in sugar syrup alters bees' feeding behaviour. This has been shown before with other pesticides with some causing bees to increase [@Kessler2015] and others causing bees to decrease [@Thompson2015] their sugar syrup consumption.
 
-#### Predictions
+### Predictions
 
-1.  The average daily volume of sugar syrup consumed during the acclimation period (i.e., before exposure to chlorothalonil) will be equal across all treatments.
+1.  The average daily volume of sugar syrup consumed during the acclimation period (i.e., before exposure to chlorothalonil) will not differ significantly between treatments.
 
 2.  The average daily volume of sugar syrup consumed during the chlorothalonil exposure period will be significantly different between treatment and control groups.
 
 ## Methods
 
-#### Bee Hosts
+### Bee Hosts  
 
 The bumble bee species that I used for my experiment was the Common Eastern Bumble Bee, *Bombus impatiens*. This bumble bee species is, unsurprisingly, the most common in eastern North America and is available to purchase as commercial colonies.
 
-#### Experimental Set Up
+### Experimental Set Up  
 
 I purchased five bumble bee hives (source colonies) from BioBest (Leamington, ON). When source colonies were one and three weeks old, 70 worker bees were removed from each source colony and divided evenly into seven cup containers to form ten microcolonies per source colony. These microcolonies were assigned to one of seven treatments: Control, Solvent Control, 1 ppb chlorothalonil (CHT), 10 ppb CHT, 100 ppb CHT, or 800 ppb CHT.\
 \
-Microcolonies were all fed sterile sugar syrup for 6 days (Day -5 to Day 0) and allowed to acclimate to their containers. Starting on Day 0, microcolonies were fed sugar syrup containing their respective treatments for five days (Day 1 to Day 5). Control microcolonies were provided with sterile sugar while Solvent Control microcolonies were provided with sterile sugar syrup spiked with dimethyl sulfoxide (DMSO**)**. CHT exposed microcolonies were provided with sterile sugar syrup spiked with the appropriate concentration of CHT dissolved in DMSO. After the five days of exposure was complete, all microcolonies were once again provided with non-contaminated sterile sugar syrup for the remainder of a two-week period (Day 6 to Day 14). The volume of sugar syrup each microcolony consumed was recorded daily.
+Microcolonies were all fed sterile sugar syrup for 6 days (Day -5 to Day 0) and allowed to acclimate to their containers. Starting on Day 0, microcolonies were fed sugar syrup containing their respective treatments for five days (Day 1 to Day 5). Control microcolonies were provided with sterile sugar while Solvent Control microcolonies were provided with sterile sugar syrup spiked with dimethyl sulfoxide (DMSO). CHT exposed microcolonies were provided with sterile sugar syrup spiked with the appropriate concentration of CHT dissolved in DMSO. After the five days of exposure was complete, all microcolonies were once again provided with non-contaminated sterile sugar syrup for the remainder of a two-week period (Day 6 to Day 14). The volume of sugar syrup each microcolony consumed was recorded daily.
 
-#### Correcting Volumes for Time Between Recordings
+### Correcting Volumes for Time Between Recordings  
 
 Sugar syrups volumes were recorded at different times during the day depending on whether a fecal sample was also being taken that day. To account for this, the daily volume of sugar syrup consumed by each microcolony was divided by the approximate number of hours between that daily volume recording and the previous day's recording to get the volume of sugar syrup consumed per microcolony per hour for each day. This number was then multiplied by 24 to calculate the corrected daily volume of sugar syrup consumed per microcolony for each day.
 
-#### **Data Filtering**
+### Statistical Methods   
 
-The initial data set contained data from additional treatments and ages whose fecal samples will not be used. Therefore, I was uninterested in their sugar consumption and removed their data from the dataset before analysis.
+I performed statistical analyses in R version 4.0.5.
 
-```{r, echo = FALSE, eval = FALSE}
+```{r, message = FALSE}
 library(tidyverse)
 library(ggforce)
 library(lme4)
@@ -60,7 +62,11 @@ library(lmerTest)
 library(emmeans)
 ```
 
-```{r, echo = FALSE, eval = FALSE}
+#### Data Filtering   
+
+The initial data set contained data from additional treatments and ages whose fecal samples will not be used. Therefore, I was uninterested in their sugar consumption and removed their data from the dataset before analysis along with recoding and reordering some of the variables.
+
+```{r}
 #Load dataset
 syrup_vol_data <- read.csv("data-raw/volume24_corr.csv")
 
@@ -88,9 +94,9 @@ syrup_vol_data_fil <-
 syrup_vol_data_fil$day_fac <- as.factor(syrup_vol_data_fil$day)
 ```
 
-#### Statistical Methods
+#### Model Selection   
 
-I performed statistical analyses in R version 4.0.5. I used the `r lme4` package to code the following linear mixed model:
+I used the lme4 package to code the following linear mixed model:
 
 ```{r}
 lm_1 <- lmer(volume24_corr ~ treatment*day_fac*age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
@@ -100,7 +106,7 @@ In this initial model, treatment, day, and age are coded as fixed effects in a t
 
 Additionally, microcolony ID nested within source colony ID is included as a random effect to account for the fact that 1) my experimental design involves taking repeated measures from microcolonies, and measurements from the same microcolony are likely to be more similar than measurements from different microcolonies and 2) each microcolony is made with bees from one of five different source colonies, who will also likely exhibit less intra-source colony variation in sugar syrup consumption than inter-source colony variation.
 
-I then used `r anova` to test for the significance of the fixed effects (Type III ANOVA using the Satterthwaite method to calculate degrees of freedom), and `r ranova` to test for the significance of the random effects. Based on the results, I tested a second linear mixed model:
+I then used the anova function to test for the significance of the fixed effects (Type III ANOVA using the Satterthwaite method to calculate degrees of freedom), and the ranova function to test for the significance of the random effects. Based on the results, I tested a second linear mixed model:
 
 ```{r}
 lm_2 <- lmer(volume24_corr ~ day_fac + age + day_fac:age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
@@ -113,17 +119,19 @@ I then tested this model for all four key assumptions of linear mixed models:
 3.  Random effects have a Gaussian distribution
 4.  Residual variance is constant across all levels of a random effect
 
-Finally, I used the `r emmeans` package to perform the post-hoc analysis to determine which day-age combinations were significantly different from each other. I determined which contrasts I wanted to perform *a priori* as I was only interested in comparing day-age combinations that had at least one factor level in common (i.e., I was interested in the contrast between the sugar volume consumed for Age 1 Day 0 and Age 1 Day 3, or Age 1 Day 0 and Age 3 Day 0, but *not* between Age 1 Day 0 and Age 3 Day 3). I specified these constrasts (400 total) as a list that was used as the contrast method for the `r contrast` function in `r emmeans`. I corrected for multiple comparisons using the sidak method.
+#### Post-Hoc Analyses   
 
-I generated two figures to display my post-hoc results: a compact letter display (CLD) using `r ggplot2` and a pairwise p-value plot (PWPP) using the `r pwpp` function in `r emmeans`. While I used the list of contrasts specified *a priori* for the PWPP, CLD plots have to compare all combinations of factors in order to determine which combinations receive which letters. As such the list of contrasts specified *a priori* was not used to generated the CLD.
+Finally, I used the emmeans package to perform post-hoc analyses to determine which day-age combinations were significantly different from each other. I determined which contrasts I wanted to perform *a priori* as I was only interested in comparing day-age combinations that had at least one factor level in common (i.e., I was interested in the contrast between the syrup volume consumed for Age 1 Day 0 and Age 1 Day 3, or Age 1 Day 0 and Age 3 Day 0, but *not* between Age 1 Day 0 and Age 3 Day 3). I specified these contrasts (400 total) in a list that was used as the method in the contrast function in the emmeans package. I corrected for multiple comparisons using the sidak method.
+
+I generated two figures to display my post-hoc results: a compact letter display (CLD) using ggplot2 and a pairwise p-value plot (PWPP) using the pwpp function in emmeans. While I used the list of contrasts specified *a priori* for the PWPP, CLD plots have to compare all combinations of factors in order to determine which combinations receive which letters. As such the list of contrasts specified *a priori* was not used to generated the CLD.
 
 ## Results
 
-#### Data Structure and Initial Visualization
+### Data Structure and Initial Visualization
 
-The daily volume of sugar syrup consumed by microcolonies over the course of my experiment, in mL, ranged from `r range(syrup_vol_data_fil$volume24_corr)` and appeared, based on initial visualizations, to vary by day and age but not by treatment (Fig. 1).
+The daily volume of sugar syrup consumed by microcolonies over the course of my experiment, in mL, ranged from 0 to 7 and appeared, based on initial visualizations, to vary by day and age but not by treatment (Fig. 1).
 
-```{r, echo=FALSE, fig.width=5, fig.height=2, fig.cap="Figure 1: Average volume (mL) of sugar syrup consumed over 24 hours by microcolonies exposed to varying concentrations of CHT over the course of a 20 day experiment. Left panel shows average volumes for bees that were one week old at the start of the experiment. Right panel shows average volumes for bees that were three weeks old at the start of the experiment."}
+```{r, message = FALSE, echo=FALSE, fig.width=10, fig.height=4, fig.cap="Figure 1: Average volume (mL) of sugar syrup consumed over 24 hours by microcolonies exposed to varying concentrations of CHT over the course of a 20 day experiment. Left panel shows average volumes for bees that were one week old at the start of the experiment. Right panel shows average volumes for bees that were three weeks old at the start of the experiment."}
 
 syrup_vol_data_fil %>% 
   group_by(treatment, day, age) %>% 
@@ -154,7 +162,7 @@ syrup_vol_data_fil %>%
   facet_wrap(~age)
 ```
 
-#### Model Selection
+### Model Selection
 
 The first model that I tested was a linear mixed model which included a three way interaction between treatment, day, and age, and microcolony nested within source colony ID as random effects (linear mixed model 1, LMM 1). Based on this model, treatment did not significantly affect the volume of sugar syrup consumed as the treatment term and all interactions including treatment were insignificant (Table 1). Only three fixed effects were significant in the first model: day, age, and the interaction between day and age (Table 1), and no effects were "borderline significant" (i.e., close to the arbitrary 0.05 cut-off). All of the model's random effects were significant (Table 2).
 
@@ -168,7 +176,7 @@ I therefore tested a second model with fixed effects consisting only of an inter
 | LMM 2 | Not included      | Not included  | Not included  | 1.869e-05 | Not included | 1.238e-05 | 6.080e-10 |
 +-------+-------------------+---------------+---------------+-----------+--------------+-----------+-----------+
 
-: Table 1: P-values of the fixed effects included in linear mixed model 1 (LMM 1 - `r volume ~ treatment*day*age + (1|scID/mcID)`) and linear mixed model 2 (LMM 2 - `r volume ~ day:age + age + day + (1|scID/mcID)`).
+: Table 1: P-values of the fixed effects included in linear mixed model 1 (LMM 1 - volume \~ treatment\*day\*age + (1\|scID/mcID)) and linear mixed model 2 (LMM 2 - volume \~ day:age + age + day + (1\|scID/mcID)).
 
 +-------+-------------------------------+-------------------------------+
 |       | (1\|mcID/scID)                | (1\|scID)                     |
@@ -178,11 +186,11 @@ I therefore tested a second model with fixed effects consisting only of an inter
 | LMM 2 | 7.224e-14                     | 0.001012                      |
 +-------+-------------------------------+-------------------------------+
 
-: Table 2: P-values of the random effects included in linear mixed model 1 (LMM 1 - `r volume ~ treatment*day*age + (1|scID/mcID)`) and linear mixed model 2 (LMM 2 - `r volume ~ day:age + age + day + (1|scID/mcID)`).
+: Table 2: P-values of the random effects included in linear mixed model 1 (LMM 1 - volume \~ treatment\*day\*age + (1\|scID/mcID)) and linear mixed model 2 (LMM 2 - volume \~ day:age + age + day + (1\|scID/mcID)).
 
-#### Linear Mixed Model Assumptions
+### Linear Mixed Model Assumptions
 
-When testing that my final model, LMM 2, satisfied all assumptions for linear mixed models there were issues surrounding the assumption of normality for the residuals. While the histogram shows a Gaussian distribution, the QQ plot showed that my data was "heavy tailed" meaning that more data are found at the extremes of my distribution than would be if the distribution was perfectly Gaussian (Fig. 2). While I could transform my data so that it better git a Gaussian distribution, this would make interpretation of results later on more difficult and linear mixed models are very robust to violations of assumptions of normality [@Knief2018; @Schielzeth2020]. Therefore, I decided that despite the assumption of normality being violated, I would nonetheless keep linear mixed model 2 as my final model.
+When testing that my final model, LMM 2, satisfied all assumptions for linear mixed models there were issues surrounding the assumption of normality for the residuals. While the histogram shows a Gaussian distribution, the QQ plot showed that my data was "heavy tailed" meaning that more data are found at the extremes of my distribution than would be if the distribution was perfectly Gaussian (Fig. 2). While I could have transformed my data so that it better git a Gaussian distribution, this would make interpretation of results later on more difficult and linear mixed models are very robust to violations of assumptions of normality [@Knief2018; @Schielzeth2020]. Therefore, I decided that despite the assumption of normality being violated, I would nonetheless keep linear mixed model 2 as my final model.
 
 ```{r, echo = FALSE, fig.cap="Figure 2: Q-Q plot and histogram of residuals for LMM 2"}
 
@@ -195,13 +203,13 @@ hist(resid(lm_2))
 
 All other assumptions of linear mixed models were satisfied by the model (see Statistics file in GitHub).
 
-#### Post-Hoc Tests
+### Post-Hoc Analyses
 
-As the model I selected had a significant interaction between age and day, I conducted post-hoc tests using the `r emmeans` to determine which day-age combinations were significantly different from each other, correcting for multiple comparisons. I have displayed these contrasts in two ways: a compact letter display (CLD) based on pairwise comparisons of all combinations (Fig. 3) and a pairwise p-value plot (PWPP) containing only contrasts between combinations with shared levels of one factor (Fig. 4).
+As the model I selected had a significant interaction between age and day, I conducted post-hoc tests using emmeans to determine which day-age combinations were significantly different from each other, correcting for multiple comparisons. I have displayed these contrasts in two ways: a compact letter display (CLD) based on pairwise comparisons of all combinations (Fig. 3) and a pairwise p-value plot (PWPP) containing only contrasts between combinations with shared levels of one factor (Fig. 4).
 
-It is important to note that the significance of contrasts sometimes differs between these two figures as the CLD performs all pairwise contrasts whereas the PWPP uses the list of contrasts specified *a priori*. I would like to formally clarify that the p-values from the PWPP reflect the actual post-hoc test that I ran and that the CLD is provided primarily to help visualize the variation in means throughout the experiment.
+It is important to note that the significance of contrasts sometimes differed between these two figures as the CLD performed all pairwise contrasts whereas the PWPP used the list of contrasts specified *a priori*. I would like to formally clarify that the p-values from the PWPP reflect the actual post-hoc test that I ran and that the CLD is provided primarily to help visualize the variation in means throughout the experiment.
 
-```{r, message = FALSE, echo = FALSE, fig.width=5, fig.height=3, fig.cap="Figure 3: Average volume (mL) of sugar syrup consumed over 24 hours by microcolonies over the course of a 20 day experiment. Left panel shows average volumes for bees that were one week old at the start of the experiment. Right panel shows average volumes for bees that were three weeks old at the start of the experiment. Day-age combinations with the same letters are insignificantly different from one another."}
+```{r, message = FALSE, echo = FALSE, fig.width=10, fig.height=6, fig.cap="Figure 3: Average volume (mL) of sugar syrup consumed over 24 hours by microcolonies over the course of a 20 day experiment. Left panel shows average volumes for bees that were one week old at the start of the experiment. Right panel shows average volumes for bees that were three weeks old at the start of the experiment. Day-age combinations with the same letters are insignificantly different from one another."}
 
 library(emmeans)
 library(multcompView)
@@ -251,7 +259,7 @@ syrup_vol_data_fil_letters %>%
     facet_wrap(~ age)
 ```
 
-```{r, message=FALSE, echo=FALSE, eval = FALSE}
+```{r, message=FALSE, echo = FALSE}
 
 lm_2_posthoc_means <- emmeans(lm_2, specs = ~day_fac:age)
 
@@ -740,11 +748,9 @@ pwpp_comparisons <-
         "12 3 to 14 3" = D123-D143,
         "13 3 to 14 3" = D133-D143
        )
-
-str(pwpp_comparisons)
 ```
 
-```{r, echo = FALSE, fig.height=8, fig.width=5, fig.caption = "Figure 4: Pairwise p-value plot of all contrasts between day-age combinations that share one factor level. Average volume of sugar syrup consumed over 24 hours for each day-age combination are shown in boxes at the far left of each panel. The dashed black line separates day-age combinations with Age 3 from Age 1. Bottom panel shows contrasts that have a p-value < 0.1."}
+```{r, echo = FALSE, fig.height=16, fig.width=10, fig.caption = "Figure 4: Pairwise p-value plot of all contrasts between day-age combinations that share one factor level. Average volume of sugar syrup consumed over 24 hours for each day-age combination are shown in boxes at the far left of each panel. The dashed black line separates day-age combinations with Age 3 from Age 1. Bottom panel shows contrasts that have a p-value < 0.1."}
 
 lm_2_posthoc_fig <- emmeans(lm_2, ~day_fac:age)
 
@@ -763,14 +769,30 @@ pwpp_fig
 
 ```
 
-The average volume of sugar syrup consumed over 24 hours for each day-age combination ranged from 2.09 mL to 4.10 mL. In general, three week old bees consumed less sugar syrup than one week old bees (Fig. 3, Fig. 4). However, the differences were only significant for Days -5, -1, 11, 12, and 13 (Fig. 4).
+The average volume of sugar syrup consumed over 24 hours for each day-age combination ranged from 2.09 mL to 4.10 mL, with the overall average being 3.15 mL per microcolony per day. In general, three week old microcolonies consumed less sugar syrup than one week old microcolonies (Fig. 3, Fig. 4). However, the differences were only significant for Days -5, -1, 11, 12, and 13 (Fig. 4). In terms of effect size, one week old microcolonies drank anywhere from 1.36 to 1.63 times more syrup than three week microcolonies bees, translating to additional 0.93 to 1.31 mL per microcolony. If we divide this amount by the number of bees in each microcolony, we get an additional 0.093-0.13 mL of consumed syrup per bee.
 
-When comparing within age groups and across days, average sugar syrup consumption is relatively consistent, and most of the significant differences are linked to just a few days. For example, for one week old bees, most significantly different pairs contained Day -1 or Day 0 in which Day -1 or Day 0 had significantly higher syrup consumption (Fig. 3, Fig. 4). Conversely, for three week old bees, most significantly different pairs contained Day 11 or 13 in which Day 11 or Day 13 had significantly lower syrup consumption (Fig. 3, Fig. 4).
-
-There are a few other patterns visible in these figures worth noting. First is that adjacent days tend not to vary significantly in syrup consumption. Secondly, syrup consumption during the chlorothalonil exposure interval (Day 1 to Day 5) was the most consistent for both age groups, with low variation in mean volume consumed and no significant differences between days.
+When comparing within age groups and across days, average sugar syrup consumption is relatively consistent, and most of the significant differences are linked to just a few days. For example, for one week old microcolonies, most significantly different pairs contained Day -1 or Day 0 in which Day -1 or Day 0 had significantly higher syrup consumption (Fig. 3, Fig. 4). With an average syrup consumption of 4.10 mL and 4.00 mL respectively, one week old microcolonies consumed approximately 1.3x the overall average volume of sugar syrup on these days. Conversely, for three week old microcolonies, most significantly different pairs contained Day 11 or 13 in which Day 11 or Day 13 had significantly lower syrup consumption (Fig. 3, Fig. 4). With an average syrup consumption of 2.30 mL and 2.09 mL respectively, one week old microcolonies consumed between 0.66 and 0.73x the overall average volume of sugar syrup on these days.
 
 ## Discussion
 
-## Data Availability
+Based the results of my analysis, chlorothalonil does not affect the feeding behaviour of bumble bee workers. While I included treatment in my initial linear mixed model, all fixed effects associated with treatment were insignificant (Table 1). Therefore, while my first prediction - that the average daily volume of sugar syrup consumed during the acclimation period will not differ significantly between treatments - was correct, ultimately my hypothesis is not supported as the presence of chlorothalonil in sugar syrup does not affect sugar syrup consumption during the exposure period, nor at any other point in my experiment. There is precedence for this result in the literature with other pesticides. Blot et al. found that the presence of the herbicide glyphosate in sugar syrup did not impact consumption by honey bees [@Blot2019], and Paris et al. found that honey bees consumed just as much sugar syrup when imidacloprid or thiamethoxam was added as when they were absent [@Paris2020].
+
+The fact that sugar syrup consumption does not vary significantly due to treatment is actually a welcome result, as it means that the gut microbial communities of my microcolonies did not receive significantly different amounts of nutrition (i.e., sugar) during the experiment. When I receive the sequence data from my gut microbial samples and have the opportunity to analyze variation in microbial community structure, I will be able to confidently say that any differences between treatments are not due to some treatments having better fed microbial communities (or hosts, for that matter) than others.
+
+Daily volume of sugar syrup consumed did vary significantly by day and age (Table 1, Fig. 3, Fig. 4), though the contrasts between day and age combinations were mostly insignificant (Fig. 4). However, one week old and three week old microcolonies did differ significantly in syrup consumption on Days -5, -1, 11, 12, and 13, with one week old microcolonies consistently consuming significantly more sugar syrup, up to 0.13 mL more per bee (Fig. 3, Fig. 4). While data on the average daily sugar or nectar intake of *Bombus impatiens* workers are scarce, there are data on the average daily consumption of honey of a bumble bee of comparable size. *Bombus vosnesenskii* workers consume around 0.14 g of honey per day [@Heinrich2004]. Honey is around 70% sugar, so to consume a comparable amount of sugar from 30% sugar syrup, a bumble bee worker would need to consume around 0.33 g of 30%. This value is very close to the average amount of syrup consumed per bee across all microcolonies in this study (0.315 mL). A volume of 0.13 mL therefore translates to around a third of a bee's average daily sugar intake - not a negligible amount.
+
+In addition to variation between age groups, the average daily volume of sugar syrup consumed varied between some days within age groups. Generally, significant differences between days were due to "extreme" values in a few days in each age group. For one week old bees, syrup consumption on Days -1 and 0 was around 1.3x higher than the overall average, whereas three week old bees consumed only 0.66 and 0.73x the overall average on Days 11 and 13, respectively. These values translate to approximately an extra 0.09 mL of sugar syrup per bee on Day -1 and 0 for one week old bees, and between 0.085 and 0.106 mL less sugar syrup on Day 11 and 13 for three week old bees. As with the inter-age group differences in syrup consumption mentioned above, these volumes are close to a third of a bees average daily sugar syrup consumption. Differences of these magnitudes may have significant impacts on both the nutritional status of the hosts within each microcolony as well as the microcolony's gut microbiota.
+
+These results show that chlorothalonil does not affect the feeding behaviour of bees, meaning that differences that I observe in gut microbiota community structure between treatments in my experiment will not be due to differences in nutritional status of the gut microbial communities, nor their hosts. However, age of the microcolonies and experiment day do significantly affect sugar syrup consumption, with microcolonies of some day-age combinations consuming up to 1.3x the overall average, and others consuming only 0.66x the overall average. Differences in the volume of consumed syrup of this magnitude *could* have impacts on the nutritional status of gut microbiotas and their hosts which may impact if and how gut microbial communities shift in response to pesticide exposure. When I receive my sequence data, if I see significant differences in gut microbiota community structure between microcolonies of different days or age groups, I must interpret those differences keeping in mind that there are statistically significant and biologically meaningful differences in sugar syrup consumption between days and age groups as well.
+
+### Limitations   
+
+The two major limitations of my study are:
+
+1) My data do not strictly follow the assumption of normality of residuals. While linear mixed models are robust to violations of this assumption, this remains a limitation of my study.
+
+2) I did not record the exact time that each microcolony's volume was recorded each day. When I corrected volumes to take into account varying time between sampling points, I estimated the average amount of time based on factors such as whether the sample was taken on a weekday or weekend and whether fecal samples were also taken that day. This means that the corrected daily volumes are likely slightly off and do not completely accurately represent the actual volumes consumed per microcolony per day.
+
+## Data Availability  
 
 Raw data, this .pdf document as an R Markdown file, and a separate R Markdown file with all statistical analyses (i.e., all assumption tests, full anova and ranova results) are available on [GitHub](https://github.com/michellehotch/BIO8102_AdvancedStats_FinalProject).
