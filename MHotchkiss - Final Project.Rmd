@@ -53,31 +53,44 @@ Sugar syrups volumes were recorded at different times during the day depending o
 The initial data set contained data from additional treatments and ages whose fecal samples will not be used. Therefore, I was uninterested in their sugar consumption and removed their data from the dataset before analysis.
 
 ```{r, echo = FALSE, eval = FALSE}
-syrup_vol_data <- read.csv("data-raw/volume24_corr.csv")
-
-syrup_vol_data_fil <-
-  syrup_vol_data %>% 
-  filter(!(day=="-6")) %>% 
-  filter(!(treatment=="Sacrifice")) %>% 
-  filter(!(age=="7")) %>% 
-  filter(!(age=="9"))
-
-syrup_vol_data_fil$day_fac <- as.factor(syrup_vol_data_fil$day)
-
-str(syrup_vol_data_fil)
-```
-
-#### Statistical Methods
-
-I performed statistical analyses in R version 4.0.5. I used the `r lme4` package to code the following linear mixed model:
-
-```{r, echo = FALSE, eval = FALSE}
 library(tidyverse)
 library(ggforce)
 library(lme4)
 library(lmerTest)
 library(emmeans)
 ```
+
+```{r, echo = FALSE, eval = FALSE}
+#Load dataset
+syrup_vol_data <- read.csv("data-raw/volume24_corr.csv")
+
+#Recode as factors
+syrup_vol_data$mc_id <- as.factor(syrup_vol_data$mc_id)
+syrup_vol_data$sc_id <- as.factor(syrup_vol_data$sc_id)
+syrup_vol_data$age <- as.factor(syrup_vol_data$age)
+syrup_vol_data$exposure <- as.factor(syrup_vol_data$exposure)
+syrup_vol_data$treatment <- as.factor(syrup_vol_data$treatment)
+
+#Reorder factors
+syrup_vol_data$treatment <- factor(syrup_vol_data$treatment, levels = c("Control", "DMSO", "1ppb", "10 ppb", "100ppb", "800ppb", "Sacrifice"))
+syrup_vol_data$exposure <- factor(syrup_vol_data$exposure, levels = c("pre", "during", "post"))
+
+#Create filtered dataset
+syrup_vol_data_fil <-
+  syrup_vol_data %>% 
+  filter(!is.na(volume24_corr)) %>% 
+  filter(!(day=="-6")) %>% 
+  filter(!(treatment=="Sacrifice")) %>% 
+  filter(!(age=="7")) %>% 
+  filter(!(age=="9"))
+
+#New variable with day as factor
+syrup_vol_data_fil$day_fac <- as.factor(syrup_vol_data_fil$day)
+```
+
+#### Statistical Methods
+
+I performed statistical analyses in R version 4.0.5. I used the `r lme4` package to code the following linear mixed model:
 
 ```{r}
 lm_1 <- lmer(volume24_corr ~ treatment*day_fac*age + (1|sc_id/mc_id), data=syrup_vol_data_fil)
@@ -750,10 +763,14 @@ pwpp_fig
 
 ```
 
-The average volume of sugar syrup consumed over 24 hours for each day-age combination ranged from 2.09 mL to 4.10 mL. In general, three week old bees consumed less than one week old bees (Fig. 3, Fig. 4). However, the differences were only significant for Days -5, -1, 11, 12, and 13 (Fig. 4).
+The average volume of sugar syrup consumed over 24 hours for each day-age combination ranged from 2.09 mL to 4.10 mL. In general, three week old bees consumed less sugar syrup than one week old bees (Fig. 3, Fig. 4). However, the differences were only significant for Days -5, -1, 11, 12, and 13 (Fig. 4).
 
-When comparing within age groups and across days,
+When comparing within age groups and across days, average sugar syrup consumption is relatively consistent, and most of the significant differences are linked to just a few days. For example, for one week old bees, most significantly different pairs contained Day -1 or Day 0 in which Day -1 or Day 0 had significantly higher syrup consumption (Fig. 3, Fig. 4). Conversely, for three week old bees, most significantly different pairs contained Day 11 or 13 in which Day 11 or Day 13 had significantly lower syrup consumption (Fig. 3, Fig. 4).
 
-Most day-age combinations were insignificantly different from one another, as seen in the large amount of shared letters in Figure 3 and the large group of contrasts with p-values between 0.5 and 1.0 in Figure 4.
+There are a few other patterns visible in these figures worth noting. First is that adjacent days tend not to vary significantly in syrup consumption. Secondly, syrup consumption during the chlorothalonil exposure interval (Day 1 to Day 5) was the most consistent for both age groups, with low variation in mean volume consumed and no significant differences between days.
 
-However, there are
+## Discussion
+
+## Data Availability
+
+Raw data, this .pdf document as an R Markdown file, and a separate R Markdown file with all statistical analyses (i.e., all assumption tests, full anova and ranova results) are available on [GitHub](https://github.com/michellehotch/BIO8102_AdvancedStats_FinalProject).
