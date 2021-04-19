@@ -100,7 +100,7 @@ I then tested this model for all four key assumptions of linear mixed models:
 3.  Random effects have a Gaussian distribution
 4.  Residual variance is constant across all levels of a random effect
 
-Finally, I used the `r emmeans` package to perform the post-hoc analysis to determine which day-age combinations were significantly different from each other. I determined which contrasts I wanted to perform *a priori* as I was only interested in comparing day-age combinations that had at least one factor level in common (i.e., I was interested in the contrast between the sugar volume consumed for Age 1 Day 0 and Age 1 Day 3, or Age 1 Day 0 and Age 3 Day 0, but *not* between Age 1 Day 0 and Age 3 Day 3). I specified these constrasts (400 total) as a list that was used as the contrast method for \`r emmeans\`. I corrected for multiple comparisons using the sidak method.
+Finally, I used the `r emmeans` package to perform the post-hoc analysis to determine which day-age combinations were significantly different from each other. I determined which contrasts I wanted to perform *a priori* as I was only interested in comparing day-age combinations that had at least one factor level in common (i.e., I was interested in the contrast between the sugar volume consumed for Age 1 Day 0 and Age 1 Day 3, or Age 1 Day 0 and Age 3 Day 0, but *not* between Age 1 Day 0 and Age 3 Day 3). I specified these constrasts (400 total) as a list that was used as the contrast method for the `r contrast` function in `r emmeans`. I corrected for multiple comparisons using the sidak method.
 
 I generated two figures to display my post-hoc results: a compact letter display (CLD) using `r ggplot2` and a pairwise p-value plot (PWPP) using the `r pwpp` function in `r emmeans`. While I used the list of contrasts specified *a priori* for the PWPP, CLD plots have to compare all combinations of factors in order to determine which combinations receive which letters. As such the list of contrasts specified *a priori* was not used to generated the CLD.
 
@@ -108,7 +108,7 @@ I generated two figures to display my post-hoc results: a compact letter display
 
 #### Data Structure and Initial Visualization
 
-The average daily volume of sugar syrup consumed by microcolonies over the course of my experiment ranged from `r range(syrup_vol_data_fil$volume24_corr)` and appeared, based on initial visualizations, to vary by day and age but not by treatment (Fig. 1).
+The daily volume of sugar syrup consumed by microcolonies over the course of my experiment, in mL, ranged from `r range(syrup_vol_data_fil$volume24_corr)` and appeared, based on initial visualizations, to vary by day and age but not by treatment (Fig. 1).
 
 ```{r, echo=FALSE, fig.width=5, fig.height=2, fig.cap="Figure 1: Average volume (mL) of sugar syrup consumed over 24 hours by microcolonies exposed to varying concentrations of CHT over the course of a 20 day experiment. Left panel shows average volumes for bees that were one week old at the start of the experiment. Right panel shows average volumes for bees that were three weeks old at the start of the experiment."}
 
@@ -143,7 +143,7 @@ syrup_vol_data_fil %>%
 
 #### Model Selection
 
-The first model that I tested was a linear mixed model which included a three way interaction between treatment, day, and age, and microcolony nested within source colony ID as random effects (linear mixed model 1, LMM 1). Only three fixed effects were significant in the first model: day, age, and the interaction between day and age (Table 1), and no effects were "borderline significant" (i.e., close to the arbitrary 0.05 cut-off). All of the model's random effects were significant (Table 2).
+The first model that I tested was a linear mixed model which included a three way interaction between treatment, day, and age, and microcolony nested within source colony ID as random effects (linear mixed model 1, LMM 1). Based on this model, treatment did not significantly affect the volume of sugar syrup consumed as the treatment term and all interactions including treatment were insignificant (Table 1). Only three fixed effects were significant in the first model: day, age, and the interaction between day and age (Table 1), and no effects were "borderline significant" (i.e., close to the arbitrary 0.05 cut-off). All of the model's random effects were significant (Table 2).
 
 I therefore tested a second model with fixed effects consisting only of an interaction between day and age, day and age as individual fixed effects, but the same random effects structure (linear mixed model 2, LMM2). All terms in this model were significant, and so this model was chosen as the final model.
 
@@ -171,8 +171,6 @@ I therefore tested a second model with fixed effects consisting only of an inter
 
 When testing that my final model, LMM 2, satisfied all assumptions for linear mixed models there were issues surrounding the assumption of normality for the residuals. While the histogram shows a Gaussian distribution, the QQ plot showed that my data was "heavy tailed" meaning that more data are found at the extremes of my distribution than would be if the distribution was perfectly Gaussian (Fig. 2). While I could transform my data so that it better git a Gaussian distribution, this would make interpretation of results later on more difficult and linear mixed models are very robust to violations of assumptions of normality [@Knief2018; @Schielzeth2020]. Therefore, I decided that despite the assumption of normality being violated, I would nonetheless keep linear mixed model 2 as my final model.
 
-All other assumptions of linear mixed models were satisfied by the model (see Statistics file in GitHub).
-
 ```{r, echo = FALSE, fig.cap="Figure 2: Q-Q plot and histogram of residuals for LMM 2"}
 
 par(mfrow = c(1, 2)) # multiple graphs in a window
@@ -182,9 +180,13 @@ hist(resid(lm_2))
 
 ```
 
+All other assumptions of linear mixed models were satisfied by the model (see Statistics file in GitHub).
+
 #### Post-Hoc Tests
 
-As the model I selected had a significant interaction between age and day, I conducted post-hoc tests using the `r emmeans` to determine which day-age combinations were significantly different from each other, correcting for multiple comparisons. I have displayed these contrasts in two ways: a compact letter display based on pairwise comparisons of all combinations (Fig. 3) and a pairwise p-value plot containing only contrasts between combinations with shared levels of one factor (Fig. 4).
+As the model I selected had a significant interaction between age and day, I conducted post-hoc tests using the `r emmeans` to determine which day-age combinations were significantly different from each other, correcting for multiple comparisons. I have displayed these contrasts in two ways: a compact letter display (CLD) based on pairwise comparisons of all combinations (Fig. 3) and a pairwise p-value plot (PWPP) containing only contrasts between combinations with shared levels of one factor (Fig. 4).
+
+It is important to note that the significance of contrasts sometimes differs between these two figures as the CLD performs all pairwise contrasts whereas the PWPP uses the list of contrasts specified *a priori*. I would like to formally clarify that the p-values from the PWPP reflect the actual post-hoc test that I ran and that the CLD is provided primarily to help visualize the variation in means throughout the experiment.
 
 ```{r, message = FALSE, echo = FALSE, fig.width=5, fig.height=3, fig.cap="Figure 3: Average volume (mL) of sugar syrup consumed over 24 hours by microcolonies over the course of a 20 day experiment. Left panel shows average volumes for bees that were one week old at the start of the experiment. Right panel shows average volumes for bees that were three weeks old at the start of the experiment. Day-age combinations with the same letters are insignificantly different from one another."}
 
@@ -725,9 +727,11 @@ pwpp_comparisons <-
         "12 3 to 14 3" = D123-D143,
         "13 3 to 14 3" = D133-D143
        )
+
+str(pwpp_comparisons)
 ```
 
-```{r, fig.height=8, fig.width=5, fig.caption = "Figure 4: Pairwise p-value plot of all contrasts between day-age combinations that share one factor level. Average volume of sugar syrup consumed over 24 hours for each day-age combination are shown in boxes at the far left of the upper panel. Dashed black line separates day-age combinations with Age 3 from Age 1. Bottom panel shows contrasts that have a p-value < 0.1."}
+```{r, echo = FALSE, fig.height=8, fig.width=5, fig.caption = "Figure 4: Pairwise p-value plot of all contrasts between day-age combinations that share one factor level. Average volume of sugar syrup consumed over 24 hours for each day-age combination are shown in boxes at the far left of each panel. The dashed black line separates day-age combinations with Age 3 from Age 1. Bottom panel shows contrasts that have a p-value < 0.1."}
 
 lm_2_posthoc_fig <- emmeans(lm_2, ~day_fac:age)
 
@@ -740,8 +744,16 @@ pwpp_fig <-
     panel.grid.major.y = element_line(colour="grey80", size=0.3)
   )+
   ggplot2::geom_hline(yintercept = 20.5, linetype = "dashed")+
-  facet_zoom(xlim = c(0.01, 0.63), zoom.size = 1)
+  facet_zoom(xlim = c(-0.05, 0.63), zoom.size = 1)
   
 pwpp_fig
 
 ```
+
+The average volume of sugar syrup consumed over 24 hours for each day-age combination ranged from 2.09 mL to 4.10 mL. In general, three week old bees consumed less than one week old bees (Fig. 3, Fig. 4). However, the differences were only significant for Days -5, -1, 11, 12, and 13 (Fig. 4).
+
+When comparing within age groups and across days,
+
+Most day-age combinations were insignificantly different from one another, as seen in the large amount of shared letters in Figure 3 and the large group of contrasts with p-values between 0.5 and 1.0 in Figure 4.
+
+However, there are

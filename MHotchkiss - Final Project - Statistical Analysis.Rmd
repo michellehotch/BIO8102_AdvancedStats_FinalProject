@@ -52,6 +52,7 @@ Notes: Day -6 has been removed as this is the first day of the experiment and th
 ```{r}
 syrup_vol_data_fil <-
   syrup_vol_data %>% 
+  filter(!is.na(volume24_corr)) %>% 
   filter(!(day=="-6")) %>% 
   filter(!(treatment=="Sacrifice")) %>% 
   filter(!(age=="7")) %>% 
@@ -765,6 +766,7 @@ syrup_vol_data_fil_letters
 
 syrup_vol_data_fil_letters %>% 
   ggplot(aes(day_fac, mean, color=age, group=1)) +
+  
   geom_point()+
   stat_summary(fun=sum, geom="line")+
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,
@@ -811,7 +813,7 @@ pwpp_fig <-
     panel.grid.major.y = element_line(colour="grey80", size=0.3)
   )+
   ggplot2::geom_hline(yintercept = 20.5, linetype = "dashed")+
-  facet_zoom(xlim = c(0.01, 0.63), zoom.size = 1)
+  facet_zoom(xlim = c(-0.05, 0.63), zoom.size = 1)
   
 pwpp_fig
 
